@@ -7,11 +7,6 @@ export class AppController {
 
   @Get('/')
   getHello() {
-    return this.appService.getHello();
-  }
-
-  @Get('/posts')
-  getFile() {
-    return this.appService.getPostTitles();
+    return 'Backend server for sailingpen lms';
   }
 }
