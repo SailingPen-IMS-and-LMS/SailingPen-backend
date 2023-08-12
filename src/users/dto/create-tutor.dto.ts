@@ -6,27 +6,8 @@ import {
   IsEmail,
   IsDateString,
   ArrayNotEmpty,
-  IsDefined,
-  IsNotEmptyObject,
-  IsObject,
-  ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { IsEmailUnique, IsNicUnique, IsUsernameUnique } from '../validators';
-
-export class PaymentDetailsDTO {
-  @IsNotEmpty()
-  @IsString()
-  bank_name: string;
-
-  @IsNotEmpty()
-  @IsString()
-  branch_name: string;
-
-  @IsNotEmpty()
-  @IsString()
-  account_no: string;
-}
 
 export class CreateTutorDto {
   @IsNotEmpty()
@@ -82,11 +63,18 @@ export class CreateTutorDto {
   @ApiProperty()
   qualifications: string[];
 
-  @IsDefined()
-  @IsNotEmptyObject()
-  @IsObject()
-  @ValidateNested()
-  @Type(() => PaymentDetailsDTO)
+  @IsNotEmpty()
+  @IsString()
   @ApiProperty()
-  payment_details: PaymentDetailsDTO;
+  bank_name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty()
+  branch_name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty()
+  account_no: string;
 }

@@ -91,7 +91,9 @@ export class UsersService {
     dob,
     contact_no,
     qualifications,
-    payment_details,
+    bank_name,
+    branch_name,
+    account_no,
     address,
     username,
     f_name,
@@ -109,7 +111,11 @@ export class UsersService {
           username,
           tutor: {
             create: {
-              payment_details: JSON.stringify(payment_details),
+              payment_details: JSON.stringify({
+                bank_name,
+                branch_name,
+                account_no,
+              }),
               qualifications,
             },
           },
