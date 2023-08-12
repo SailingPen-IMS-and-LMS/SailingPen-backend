@@ -11,6 +11,8 @@ import { UsersService } from 'src/users/users.service';
 import { compare } from 'bcrypt';
 import { CreateStudentDto } from '../users/dto/create-student.dto';
 import { StudentLoginDto } from './dto/student-login.dto';
+import { CreateTutorDto } from '../users/dto/create-tutor.dto';
+import { DashboardLoginDto } from './dto/dashboard-login.dto';
 
 @Injectable()
 export class AuthService {
@@ -51,16 +53,40 @@ export class AuthService {
     return tokens;
   }
 
-  async logoutStudent(userId: number) {
+  async logoutStudent(userId: string) {
     return this.usersService.update(userId, null);
   }
 
-  async updateRefreshToken(userId: number, refreshToken: string) {
+  async registerTutor(createTutorDto: CreateTutorDto) {
+    const createdTutor = await this.usersService.createTutor(createTutorDto);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...otherDetails } = createdTutor;
+
+    return otherDetails;
+  }
+
+  async loginToDashboard({ username, password }: DashboardLoginDto) {
+    const user = await this.usersService.getUserByUsername(username);
+    if (!user) {
+      console.log('Username not found');
+      throw new BadRequestException(`Username doesn't exist`);
+    }
+    // const tokens = await this.getTokens(student.user_id, student.user.username);
+    if (!(await compare(password, user.password))) {
+      throw new BadRequestException('Password is incorrect');
+    }
+    const tokens = await this.getTokens(user.user_id, user.username);
+    await this.updateRefreshToken(user.user_id, tokens.refreshToken);
+    return { ...tokens, userType: user.user_type };
+  }
+
+  async updateRefreshToken(userId: string, refreshToken: string) {
     const hashedRefreshToken = await this.hashData(refreshToken);
     await this.usersService.update(userId, hashedRefreshToken);
   }
 
-  async getTokens(userId: number, username: string) {
+  async getTokens(userId: string, username: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
@@ -90,7 +116,7 @@ export class AuthService {
     };
   }
 
-  async refreshTokens(userId: number, refreshToken: string) {
+  async refreshTokens(userId: string, refreshToken: string) {
     const user = await this.usersService.getUserById(userId);
     if (!user || !user.refresh_token)
       throw new ForbiddenException('Access Denied');

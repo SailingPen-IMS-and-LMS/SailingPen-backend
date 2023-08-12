@@ -15,6 +15,8 @@ import { CreateStudentDto } from 'src/users/dto/create-student.dto';
 import { StudentLoginDto } from './dto/student-login.dto';
 import { AccessTokenGuard } from '../common/guards/access-token.guard';
 import { RefreshTokenGuard } from '../common/guards/refresh-token.guard';
+import { CreateTutorDto } from '../users/dto/create-tutor.dto';
+import { DashboardLoginDto } from './dto/dashboard-login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -30,7 +32,7 @@ export class AuthController {
     console.log(req.user);
     if (req.user) {
       console.log(req.user);
-      const userId = req.user['sub' as keyof Express.User] as number;
+      const userId = req.user['sub' as keyof Express.User] as string;
       const refreshToken = req.user[
         'refreshToken' as keyof Express.User
       ] as string;
@@ -57,5 +59,17 @@ export class AuthController {
   @Post('student-register')
   registerAsStudent(@Body() createStudentDto: CreateStudentDto) {
     return this.authService.registerStudent(createStudentDto);
+  }
+
+  @HttpCode(HttpStatus.CREATED)
+  @Post('tutor-register')
+  registerAsTutor(@Body() createTutorDto: CreateTutorDto) {
+    return this.authService.registerTutor(createTutorDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('login')
+  loginToDashboard(@Body() loginDto: DashboardLoginDto) {
+    return this.authService.loginToDashboard(loginDto);
   }
 }

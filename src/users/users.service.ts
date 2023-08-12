@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { CreateStudentDto } from './dto/create-student.dto';
+import { CreateTutorDto } from './dto/create-tutor.dto';
 
 @Injectable()
 export class UsersService {
@@ -17,10 +18,9 @@ export class UsersService {
         username: username,
       },
     });
-    // select * from user where username = username
   }
 
-  getUserById(id: number) {
+  getUserById(id: string) {
     return this.prisma.user.findUnique({
       where: {
         user_id: id,
@@ -79,6 +79,7 @@ export class UsersService {
           f_name,
           l_name,
           contact_no,
+          user_type: 'student',
         },
       });
     } catch (e) {
@@ -86,7 +87,49 @@ export class UsersService {
     }
   }
 
-  async update(userId: number, refreshToken: string | null) {
+  async createTutor({
+    dob,
+    contact_no,
+    qualifications,
+    payment_details,
+    address,
+    username,
+    f_name,
+    l_name,
+    nic,
+    password,
+    email,
+  }: CreateTutorDto) {
+    try {
+      password = await hash(password, 12);
+      const generated_dob = new Date(dob);
+
+      return this.prisma.user.create({
+        data: {
+          username,
+          tutor: {
+            create: {
+              payment_details: JSON.stringify(payment_details),
+              qualifications,
+            },
+          },
+          dob: generated_dob,
+          address,
+          nic,
+          password,
+          email,
+          f_name,
+          l_name,
+          contact_no,
+          user_type: 'tutor',
+        },
+      });
+    } catch (e) {
+      throw new InternalServerErrorException(e);
+    }
+  }
+
+  async update(userId: string, refreshToken: string | null) {
     return this.prisma.user.update({
       where: {
         user_id: userId,
