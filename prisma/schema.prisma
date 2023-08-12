@@ -10,8 +10,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserType {
+  admin
+  adminassistant
+  tutor
+  tutorassistant
+  student
+}
+
 model User {
-  user_id       Int      @id @default(autoincrement())
+  user_id       String   @id @default(dbgenerated("(concat('user_', gen_random_uuid()))::TEXT"))
   nic           String   @unique
   f_name        String
   l_name        String
@@ -21,14 +29,24 @@ model User {
   dob           DateTime
   address       String
   contact_no    String   @unique
-  student       Student?
+  user_type     UserType @default(student)
   refresh_token String?
+  student       Student?
+  tutor         Tutor?
 }
 
 model Student {
-  student_id        Int    @id @default(autoincrement())
+  student_id        String @id @default(dbgenerated("(concat('student_', gen_random_uuid()))::TEXT"))
   school            String
   parent_contact_no String
   user              User   @relation(fields: [user_id], references: [user_id])
-  user_id           Int    @unique
+  user_id           String @unique
+}
+
+model Tutor {
+  tutor_id        String   @id @default(dbgenerated("(concat('tutor_', gen_random_uuid()))::TEXT"))
+  qualifications  String[]
+  payment_details Json
+  user            User     @relation(fields: [user_id], references: [user_id])
+  user_id         String   @unique
 }
