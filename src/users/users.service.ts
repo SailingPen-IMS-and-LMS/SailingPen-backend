@@ -34,7 +34,13 @@ export class UsersService {
   }
 
   getStudents() {
-    return this.prisma.user.findMany({});
+    return this.prisma.user.findMany({
+      where: {
+        user_type: 'student'
+      }, include: {
+        student: true
+      }
+    });
   }
 
   getStudentByUsername(username: string) {

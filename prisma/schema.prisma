@@ -37,12 +37,14 @@ model User {
 }
 
 model Student {
-  student_id        String  @id @default(dbgenerated("(concat('student_', gen_random_uuid()))::TEXT"))
+  student_id        String       @id @default(dbgenerated("(concat('student_', gen_random_uuid()))::TEXT"))
   school            String
   parent_contact_no String
   barcode           String?
-  user              User    @relation(fields: [user_id], references: [user_id])
-  user_id           String  @unique
+  user              User         @relation(fields: [user_id], references: [user_id])
+  user_id           String       @unique
+  Enrollment        Enrollment[]
+  Attendance        Attendance[]
 }
 
 model Tutor {
@@ -70,12 +72,33 @@ model Subject {
 }
 
 model TutionClass {
-  class_id          String  @id @default(dbgenerated("(concat('class_', gen_random_uuid()))::TEXT"))
+  class_id          String       @id @default(dbgenerated("(concat('class_', gen_random_uuid()))::TEXT"))
   class_name        String
   class_description String
   schedule          Json?
-  subject           Subject @relation(fields: [subject_id], references: [subject_id])
+  subject           Subject      @relation(fields: [subject_id], references: [subject_id])
   subject_id        String
-  tutor             Tutor   @relation(fields: [tutor_id], references: [tutor_id])
+  tutor             Tutor        @relation(fields: [tutor_id], references: [tutor_id])
   tutor_id          String
+  enrollment        Enrollment[]
+  attendance        Attendance[]
+}
+
+model Enrollment {
+  id                 Int         @id @default(autoincrement())
+  enrolled_date_time DateTime     @default(now())
+  student            Student     @relation(fields: [student_id], references: [student_id])
+  student_id         String
+  tuition_class       TutionClass @relation(fields: [class_id], references: [class_id])
+  class_id           String
+  @@unique([class_id, student_id])
+}
+
+model Attendance {
+  id              Int         @id @default(autoincrement())
+  attendance_date DateTime    @default(now())
+  student         Student     @relation(fields: [student_id], references: [student_id])
+  student_id      String
+  tuition_class    TutionClass @relation(fields: [class_id], references: [class_id])
+  class_id        String
 }

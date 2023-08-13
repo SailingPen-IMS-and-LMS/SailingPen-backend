@@ -1,9 +1,11 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnprocessableEntityException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { CreateTutionClassDto } from './dto/create-tution-class.dto';
+import { EnrollToClassDto } from './dto/enroll-to-class.dto';
 
 @Injectable()
 export class TutionClassesService {
+
 
 
     prisma: PrismaClient;
@@ -14,7 +16,7 @@ export class TutionClassesService {
 
     getTutionClasses() {
         return this.prisma.tutionClass.findMany({
-            include: { subject: true, tutor: true }
+            include: { subject: true, tutor: true, enrollment: true }
         })
     }
 
@@ -33,5 +35,15 @@ export class TutionClassesService {
             console.log(error)
             throw new InternalServerErrorException(error)
         }
+    }
+
+    async enrollStudent({ class_id, student_id }: EnrollToClassDto) {
+
+        const existingEnrollment = await this.prisma.enrollment.findFirst({ where: { class_id, student_id } })
+        if (existingEnrollment) {
+            throw new UnprocessableEntityException('Student is already enrolled to the class')
+        }
+        const enrollment = await this.prisma.enrollment.create({ data: { class_id, student_id } })
+        return enrollment
     }
 }
