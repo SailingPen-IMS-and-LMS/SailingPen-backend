@@ -37,17 +37,45 @@ model User {
 }
 
 model Student {
-  student_id        String @id @default(dbgenerated("(concat('student_', gen_random_uuid()))::TEXT"))
+  student_id        String  @id @default(dbgenerated("(concat('student_', gen_random_uuid()))::TEXT"))
   school            String
   parent_contact_no String
-  user              User   @relation(fields: [user_id], references: [user_id])
-  user_id           String @unique
+  barcode           String?
+  user              User    @relation(fields: [user_id], references: [user_id])
+  user_id           String  @unique
 }
 
 model Tutor {
-  tutor_id        String   @id @default(dbgenerated("(concat('tutor_', gen_random_uuid()))::TEXT"))
+  tutor_id        String        @id @default(dbgenerated("(concat('tutor_', gen_random_uuid()))::TEXT"))
   qualifications  String[]
   payment_details Json
-  user            User     @relation(fields: [user_id], references: [user_id])
-  user_id         String   @unique
+  user            User          @relation(fields: [user_id], references: [user_id])
+  user_id         String        @unique
+  tutionclasses   TutionClass[]
+}
+
+model SubjectStream {
+  subject_stream_id  String    @id @default(dbgenerated("(concat('st_', gen_random_uuid()))::TEXT"))
+  stream_name        String    @unique
+  stream_description String
+  subjects           Subject[]
+}
+
+model Subject {
+  subject_id          String          @id @default(dbgenerated("(concat('subject_', gen_random_uuid()))::TEXT"))
+  subject_name        String          @unique
+  subject_description String
+  tutionclasses       TutionClass[]
+  subject_stream      SubjectStream[]
+}
+
+model TutionClass {
+  class_id          String  @id @default(dbgenerated("(concat('class_', gen_random_uuid()))::TEXT"))
+  class_name        String
+  class_description String
+  schedule          Json?
+  subject           Subject @relation(fields: [subject_id], references: [subject_id])
+  subject_id        String
+  tutor             Tutor   @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id          String
 }

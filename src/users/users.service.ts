@@ -4,12 +4,16 @@ import { hash } from 'bcrypt';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { CreateTutorDto } from './dto/create-tutor.dto';
 import { FileUploader } from 'src/utils/FileUploader';
+import { BarcodeGenerator } from 'src/utils/BarcodeGenerator';
 
 @Injectable()
 export class UsersService {
   prisma: PrismaClient;
 
-  constructor(private readonly fileUploader: FileUploader) {
+  constructor(
+    private readonly fileUploader: FileUploader,
+    private readonly barcodeGenerator: BarcodeGenerator,
+  ) {
     this.prisma = new PrismaClient();
   }
 
@@ -52,18 +56,25 @@ export class UsersService {
     contact_no,
     school,
     address,
-    username,
     f_name,
     l_name,
     nic,
     password,
     email,
+    avatar,
   }: CreateStudentDto) {
     try {
       password = await hash(password, 12);
       const generated_dob = new Date(dob);
 
-      return this.prisma.user.create({
+      const totalNumberOfStudents = await this.prisma.student.count();
+      // Generate username by padding '0' to the left of the total number of students to make it 8 digits
+      const username = (totalNumberOfStudents + 1).toString().padStart(8, '0');
+      console.log(username);
+      const barcode = await this.barcodeGenerator.generateBarcode(username);
+      console.log(barcode);
+
+      const createdStudent = await this.prisma.user.create({
         data: {
           username,
           student: {
@@ -83,7 +94,39 @@ export class UsersService {
           user_type: 'student',
         },
       });
+
+      console.log(createdStudent);
+
+      const avatarURL = await this.fileUploader.uploadFile(avatar, {
+        folder: 'tutors/avatars',
+      });
+
+      console.log(avatarURL);
+
+      const barcodeURL = await this.fileUploader.uploadFileWithFileObject(
+        barcode,
+        {
+          folder: 'tutors/barcodes',
+        },
+      );
+
+      console.log(barcodeURL);
+
+      return this.prisma.user.update({
+        where: {
+          user_id: createdStudent.user_id,
+        },
+        data: {
+          avatar: avatarURL,
+          student: {
+            update: {
+              barcode: barcodeURL,
+            },
+          },
+        },
+      });
     } catch (e) {
+      console.log(e);
       throw new InternalServerErrorException(e);
     }
   }

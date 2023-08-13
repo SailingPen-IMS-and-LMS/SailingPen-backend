@@ -2,6 +2,7 @@ import { MemoryStoredFile } from 'nestjs-form-data';
 import { Injectable } from '@nestjs/common';
 import { S3Client, S3ClientConfig, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuid4 } from 'uuid';
+import { File } from '@web-std/file';
 
 @Injectable()
 export class FileUploader {
@@ -34,6 +35,24 @@ export class FileUploader {
       fileName,
       file.mimetype,
     );
+  }
+
+  async uploadFileWithFileObject(
+    file: File,
+    options: {
+      folder: string;
+    },
+  ) {
+    // console.log(file);
+
+    const originalName = file.name;
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const type = file.type;
+
+    const randomBytes = uuid4();
+    const fileName = `${options.folder}/${randomBytes}-${originalName}`;
+
+    return await this.s3_upload(buffer, this.AWS_S3_BUCKET, fileName, type);
   }
 
   async s3_upload(

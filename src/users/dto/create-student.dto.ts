@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsEmail, IsDateString } from 'class-validator';
-import { IsEmailUnique, IsNicUnique, IsUsernameUnique } from '../validators';
+import { IsEmailUnique, IsNicUnique } from '../validators';
+import {
+  HasMimeType,
+  IsFile,
+  MaxFileSize,
+  MemoryStoredFile,
+} from 'nestjs-form-data';
 
 export class CreateStudentDto {
-  @IsNotEmpty()
-  @IsString()
-  @IsUsernameUnique()
-  @ApiProperty()
-  username: string;
-
   @IsNotEmpty()
   @IsString()
   @IsNicUnique()
@@ -59,4 +59,9 @@ export class CreateStudentDto {
   @IsString()
   @ApiProperty()
   parent_contact_no: string;
+
+  @IsFile()
+  @MaxFileSize(1e7)
+  @HasMimeType(['image/jpeg', 'image/png'])
+  avatar: MemoryStoredFile;
 }

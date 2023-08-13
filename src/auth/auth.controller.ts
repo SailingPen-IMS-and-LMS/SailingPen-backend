@@ -58,6 +58,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post('student-register')
+  @FormDataRequest()
   registerAsStudent(@Body() createStudentDto: CreateStudentDto) {
     return this.authService.registerStudent(createStudentDto);
   }
