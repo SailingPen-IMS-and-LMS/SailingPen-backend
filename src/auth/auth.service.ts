@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -61,9 +60,9 @@ export class AuthService {
     const createdTutor = await this.usersService.createTutor(createTutorDto);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...otherDetails } = createdTutor;
+    // const { ...otherDetails } = createdTutor;
 
-    return otherDetails;
+    return createdTutor;
   }
 
   async loginToDashboard({ username, password }: DashboardLoginDto) {

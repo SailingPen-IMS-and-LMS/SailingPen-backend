@@ -17,6 +17,7 @@ import { AccessTokenGuard } from '../common/guards/access-token.guard';
 import { RefreshTokenGuard } from '../common/guards/refresh-token.guard';
 import { CreateTutorDto } from '../users/dto/create-tutor.dto';
 import { DashboardLoginDto } from './dto/dashboard-login.dto';
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller('auth')
 export class AuthController {
@@ -63,7 +64,9 @@ export class AuthController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post('tutor-register')
+  @FormDataRequest()
   registerAsTutor(@Body() createTutorDto: CreateTutorDto) {
+    console.log(createTutorDto);
     return this.authService.registerTutor(createTutorDto);
   }
 

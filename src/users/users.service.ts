@@ -3,12 +3,13 @@ import { PrismaClient } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { CreateTutorDto } from './dto/create-tutor.dto';
+import { FileUploader } from 'src/utils/FileUploader';
 
 @Injectable()
 export class UsersService {
   prisma: PrismaClient;
 
-  constructor() {
+  constructor(private readonly fileUploader: FileUploader) {
     this.prisma = new PrismaClient();
   }
 
@@ -101,12 +102,13 @@ export class UsersService {
     nic,
     password,
     email,
+    avatar,
   }: CreateTutorDto) {
     try {
       password = await hash(password, 12);
       const generated_dob = new Date(dob);
 
-      return this.prisma.user.create({
+      const createdUser = await this.prisma.user.create({
         data: {
           username,
           tutor: {
@@ -128,6 +130,19 @@ export class UsersService {
           l_name,
           contact_no,
           user_type: 'tutor',
+        },
+      });
+
+      const avatarURL = await this.fileUploader.uploadFile(avatar, {
+        folder: 'tutors/avatars',
+      });
+
+      return this.prisma.user.update({
+        where: {
+          user_id: createdUser.user_id,
+        },
+        data: {
+          avatar: avatarURL,
         },
       });
     } catch (e) {
