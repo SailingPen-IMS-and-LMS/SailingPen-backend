@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { SubjectsModule } from './subjects/subjects.module';
+import { TutionClassesModule } from './tution-classes/tution-classes.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { SubjectsModule } from './subjects/subjects.module';
     UsersModule,
     NestjsFormDataModule.config({ isGlobal: true }),
     SubjectsModule,
+    TutionClassesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
