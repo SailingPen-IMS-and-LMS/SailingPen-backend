@@ -31,6 +31,7 @@ model User {
   contact_no    String   @unique
   user_type     UserType @default(student)
   refresh_token String?
+  avatar        String?
   student       Student?
   tutor         Tutor?
 }

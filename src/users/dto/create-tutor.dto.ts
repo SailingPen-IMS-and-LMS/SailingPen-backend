@@ -7,6 +7,12 @@ import {
   IsDateString,
   ArrayNotEmpty,
 } from 'class-validator';
+import {
+  MemoryStoredFile,
+  IsFile,
+  MaxFileSize,
+  HasMimeType,
+} from 'nestjs-form-data';
 import { IsEmailUnique, IsNicUnique, IsUsernameUnique } from '../validators';
 
 export class CreateTutorDto {
@@ -56,6 +62,11 @@ export class CreateTutorDto {
   @IsString()
   @ApiProperty()
   contact_no: string;
+
+  @IsFile()
+  @MaxFileSize(1e7)
+  @HasMimeType(['image/jpeg', 'image/png'])
+  avatar: MemoryStoredFile;
 
   @IsArray({})
   @ArrayNotEmpty()
