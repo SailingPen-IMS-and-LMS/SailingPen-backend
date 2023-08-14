@@ -29,8 +29,4 @@ export class UsersController {
   getStudentByUsername(@Param('username') username: string) {
     return this.usersService.getStudentByUsername(username);
   }
-
-
-
-
 }
