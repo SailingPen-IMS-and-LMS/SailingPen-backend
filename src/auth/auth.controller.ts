@@ -13,18 +13,22 @@ import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { CreateStudentDto } from '../users/dto/create-student.dto';
 import { StudentLoginDto } from './dto/student-login.dto';
-import { AccessTokenGuard } from '../common/guards/access-token.guard';
 import { RefreshTokenGuard } from '../common/guards/refresh-token.guard';
 import { CreateTutorDto } from '../users/dto/create-tutor.dto';
 import { DashboardLoginDto } from './dto/dashboard-login.dto';
 import { FormDataRequest } from 'nestjs-form-data';
+import { CreateAdminDto } from 'src/users/dto/create-admin-dto';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from './decorators/roles.decorator';
+import { AuthenticatedUser } from './types/jwt.types';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
-  ) {}
+  ) { }
 
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
@@ -47,13 +51,17 @@ export class AuthController {
     return this.authService.loginStudent(loginDto);
   }
 
-  @UseGuards(AccessTokenGuard)
+  @Roles('student')
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('student-logout')
-  logout(@Req() req: Request) {
-    if (req.user)
+  logoutStudent(@Req() req: Request) {
+    if (req.user) {
+      const user = req.user as AuthenticatedUser
       return this.authService.logoutStudent(
-        req.user['sub' as keyof Express.User],
+        user.sub
       );
+    }
   }
 
   @HttpCode(HttpStatus.CREATED)
@@ -64,11 +72,22 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.CREATED)
+  @Roles('admin')
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('tutor-register')
   @FormDataRequest()
   registerAsTutor(@Body() createTutorDto: CreateTutorDto) {
     console.log(createTutorDto);
     return this.authService.registerTutor(createTutorDto);
+  }
+
+
+  @HttpCode(HttpStatus.CREATED)
+  @Post('admin-register')
+  @FormDataRequest()
+  registerAsAdmin(@Body() createAdminDto: CreateAdminDto) {
+    return this.authService.createAdmin(createAdminDto);
   }
 
   @HttpCode(HttpStatus.OK)

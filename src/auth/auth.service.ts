@@ -12,14 +12,16 @@ import { CreateStudentDto } from '../users/dto/create-student.dto';
 import { StudentLoginDto } from './dto/student-login.dto';
 import { CreateTutorDto } from '../users/dto/create-tutor.dto';
 import { DashboardLoginDto } from './dto/dashboard-login.dto';
+import { CreateAdminDto } from 'src/users/dto/create-admin-dto';
 
 @Injectable()
 export class AuthService {
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async registerStudent(createStudentDto: CreateStudentDto) {
     const createdStudent = await this.usersService.createStudent(
@@ -60,9 +62,15 @@ export class AuthService {
     const createdTutor = await this.usersService.createTutor(createTutorDto);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // const { ...otherDetails } = createdTutor;
+    const { password, ...otherDetails } = createdTutor;
 
-    return createdTutor;
+    return otherDetails;
+  }
+
+  async createAdmin(createAdminDto: CreateAdminDto) {
+    const createdAdmin = await this.usersService.createAdmin(createAdminDto)
+    const { password, ...otherDetails } = createdAdmin
+    return otherDetails
   }
 
   async loginToDashboard({ username, password }: DashboardLoginDto) {

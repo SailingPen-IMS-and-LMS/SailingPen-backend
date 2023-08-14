@@ -5,9 +5,12 @@ import { CreateStudentDto } from './dto/create-student.dto';
 import { CreateTutorDto } from './dto/create-tutor.dto';
 import { FileUploader } from 'src/utils/FileUploader';
 import { BarcodeGenerator } from 'src/utils/BarcodeGenerator';
+import { CreateAdminDto } from './dto/create-admin-dto';
+import { StudentProfile } from 'src/types/users/students.types';
 
 @Injectable()
 export class UsersService {
+
   prisma: PrismaClient;
 
   constructor(
@@ -54,6 +57,28 @@ export class UsersService {
         user: true,
       },
     });
+  }
+
+
+  async getStudentProfileById(userId: string): Promise<StudentProfile> {
+    try {
+      const rawStudent = await this.prisma.student.findFirst({ where: { user_id: userId }, include: { user: { select: { address: true, admin: true, avatar: true, contact_no: true, dob: true, email: true, f_name: true, l_name: true, nic: true, user_id: true, user_type: true, username: true } } } })
+
+      if (!rawStudent) {
+        throw new Error("Student not found")
+      }
+      const { user, ...otherStudentDetails } = rawStudent
+
+      return {
+        ...otherStudentDetails,
+        ...user,
+        dob: user.dob.toDateString(),
+      }
+
+    } catch (error) {
+      console.log(error)
+      throw new InternalServerErrorException(error)
+    }
   }
 
   async createStudent({
@@ -198,6 +223,62 @@ export class UsersService {
       throw new InternalServerErrorException(e);
     }
   }
+
+
+  async createAdmin({
+    dob,
+    contact_no,
+    address,
+    username,
+    f_name,
+    l_name,
+    nic,
+    password,
+    email,
+    avatar,
+  }: CreateAdminDto) {
+    try {
+      password = await hash(password, 12);
+      const generated_dob = new Date(dob);
+
+      const createdUser = await this.prisma.user.create({
+        data: {
+          username,
+          dob: generated_dob,
+          address,
+          nic,
+          password,
+          email,
+          f_name,
+          l_name,
+          contact_no,
+          user_type: 'admin',
+        },
+      });
+
+      await this.prisma.administrator.create({
+        data: {
+          user_id: createdUser.user_id
+        }
+      })
+
+      const avatarURL = await this.fileUploader.uploadFile(avatar, {
+        folder: 'admins/avatars',
+      });
+
+      return this.prisma.user.update({
+        where: {
+          user_id: createdUser.user_id,
+        },
+        data: {
+          avatar: avatarURL,
+        },
+      });
+    } catch (e) {
+      throw new InternalServerErrorException(e);
+    }
+  }
+
 
   async update(userId: string, refreshToken: string | null) {
     return this.prisma.user.update({
