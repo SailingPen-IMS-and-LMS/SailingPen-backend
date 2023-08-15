@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { SubjectsModule } from './subjects/subjects.module';
 import { TutionClassesModule } from './tution-classes/tution-classes.module';
+import { QuizzesModule } from './quizzes/quizzes.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TutionClassesModule } from './tution-classes/tution-classes.module';
     NestjsFormDataModule.config({ isGlobal: true }),
     SubjectsModule,
     TutionClassesModule,
+    QuizzesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

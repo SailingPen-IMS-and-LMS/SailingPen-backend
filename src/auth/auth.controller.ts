@@ -7,8 +7,9 @@ import {
   Get,
   Req,
   UseGuards,
+  Res,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { CreateStudentDto } from '../users/dto/create-student.dto';
@@ -32,23 +33,45 @@ export class AuthController {
 
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
-  refreshTokens(@Req() req: Request) {
-    console.log('This was called!');
-    console.log(req.user);
+  async refreshTokens(@Req() req: Request, @Res() res: Response) {
     if (req.user) {
-      console.log(req.user);
+      // console.log(req.user);
       const userId = req.user['sub' as keyof Express.User] as string;
-      const refreshToken = req.user[
+      const refreshTokenFromRequest = req.user[
         'refreshToken' as keyof Express.User
       ] as string;
-      return this.authService.refreshTokens(userId, refreshToken);
+      const { accessToken, refreshToken } = await this.authService.refreshTokens(userId, refreshTokenFromRequest);
+      // set refresh token in cookie
+      res.cookie('refreshToken', refreshToken, {
+        // httpOnly: true,
+        // path: '/auth/refresh',
+        domain: 'localhost',
+        // all paths
+        path: '/',
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+      });
+
+      return res.send({ accessToken });
     }
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('student-login')
-  signInStudent(@Body() loginDto: StudentLoginDto) {
-    return this.authService.loginStudent(loginDto);
+  async signInStudent(@Body() loginDto: StudentLoginDto, @Res() res: Response) {
+    const { accessToken, refreshToken } = await this.authService.loginStudent(loginDto);
+
+    // set refresh token in cookie
+    res.cookie('refreshToken', refreshToken, {
+      // httpOnly: true,
+      // path: '/auth/refresh',
+      domain: 'localhost',
+      // all paths
+      path: '/',
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+    });
+
+
+    return res.send({ accessToken, userType: 'student' });
   }
 
   @Roles('student')
