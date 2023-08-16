@@ -35,6 +35,7 @@ model User {
   student       Student?
   tutor         Tutor?
   admin         Administrator?
+  created_at     DateTime       @default(now())
 }
 
 model Administrator {
@@ -61,6 +62,8 @@ model Tutor {
   user            User          @relation(fields: [user_id], references: [user_id])
   user_id         String        @unique
   tutionclasses   TutionClass[]
+  subject         Subject?      @relation(fields: [subject_id], references: [subject_id])
+  subject_id String?
 }
 
 model SubjectStream {
@@ -76,6 +79,7 @@ model Subject {
   subject_description String
   tutionclasses       TutionClass[]
   subject_stream      SubjectStream[]
+  tutor               Tutor[]
 }
 
 model TutionClass {
@@ -83,6 +87,8 @@ model TutionClass {
   class_name        String
   class_description String
   schedule          Json?
+  admission_fee     Decimal?
+  monthly_fee       Decimal?  
   subject           Subject      @relation(fields: [subject_id], references: [subject_id])
   subject_id        String
   tutor             Tutor        @relation(fields: [tutor_id], references: [tutor_id])

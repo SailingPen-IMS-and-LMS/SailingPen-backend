@@ -14,6 +14,7 @@ import {
   HasMimeType,
 } from 'nestjs-form-data';
 import { IsEmailUnique, IsNicUnique, IsUsernameUnique } from '../validators';
+import {IsSubjectIdValid} from 'src/subjects/validators'
 
 export class CreateTutorDto {
   @IsNotEmpty()
@@ -49,6 +50,11 @@ export class CreateTutorDto {
   password: string;
 
   @IsNotEmpty()
+  @IsString()
+  @ApiProperty()
+  confirm_password: string;
+
+  @IsNotEmpty()
   @IsDateString()
   @ApiProperty()
   dob: string;
@@ -73,6 +79,13 @@ export class CreateTutorDto {
   @IsString({ each: true })
   @ApiProperty()
   qualifications: string[];
+
+
+  @IsSubjectIdValid()
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty()
+  subject_id: string;
 
   @IsNotEmpty()
   @IsString()

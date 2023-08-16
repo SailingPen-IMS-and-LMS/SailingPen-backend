@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsArray } from 'class-validator';
+import { IsString, IsNotEmpty, IsArray, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {IsSubjectIdValid, IsClassNameUnique, IsTutorIdValid} from "../validators"
 
@@ -15,6 +15,15 @@ export class CreateTutionClassDto {
     @IsNotEmpty()
     @IsString()
     class_description: string;
+
+
+    @ApiProperty()
+    @IsNumber()
+    admission_fee: number;
+
+    @ApiProperty()
+    @IsNumber()
+    monthly_fee: number;
 
 
     @ApiProperty()

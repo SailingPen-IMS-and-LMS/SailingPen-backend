@@ -8,6 +8,7 @@ import {
   Req,
   UseGuards,
   Res,
+  UnauthorizedException
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
@@ -52,6 +53,38 @@ export class AuthController {
       });
 
       return res.send({ accessToken });
+    }
+  }
+
+  @UseGuards(RefreshTokenGuard)
+  @Get('refresh-dashboard')
+  async refreshDashboardTokens(@Req() req: Request, @Res() res: Response) {
+    if (req.user) {
+      // console.log(req.user);
+      const userId = req.user['sub' as keyof Express.User] as string;
+      const refreshTokenFromRequest = req.user[
+        'refreshToken' as keyof Express.User
+      ] as string;
+      const { accessToken, refreshToken } = await this.authService.refreshTokens(userId, refreshTokenFromRequest);
+
+      const user = await this.usersService.getUserTypeById(userId);
+      if(!user) {
+        throw new UnauthorizedException();
+      }
+
+      const {user_type} = user
+
+      // set refresh token in cookie
+      res.cookie('refreshToken', refreshToken, {
+        // httpOnly: true,
+        // path: '/auth/refresh',
+        domain: 'localhost',
+        // all paths
+        path: '/',
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+      });
+
+      return res.send({ accessToken, userType: user_type });
     }
   }
 
@@ -115,7 +148,21 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  loginToDashboard(@Body() loginDto: DashboardLoginDto) {
-    return this.authService.loginToDashboard(loginDto);
+  async loginToDashboard(@Body() loginDto: DashboardLoginDto, @Res() res: Response) {
+
+    const {accessToken, refreshToken, userType } = await this.authService.loginToDashboard(loginDto);
+
+        // set refresh token in cookie
+        res.cookie('refreshToken', refreshToken, {
+          // httpOnly: true,
+          // path: '/auth/refresh',
+          domain: 'localhost',
+          // all paths
+          path: '/',
+          expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+        });
+    
+    
+        return res.send({ accessToken, userType });
   }
 }
