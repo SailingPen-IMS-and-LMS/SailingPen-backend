@@ -16,7 +16,7 @@ export class TutionClassesService {
 
     getTutionClasses() {
         return this.prisma.tutionClass.findMany({
-            include: { subject: true, tutor: true, enrollment: true }
+            include: { subject: true, tutor: { include: {user: true}  }, enrollment: true,  }
         })
     }
 

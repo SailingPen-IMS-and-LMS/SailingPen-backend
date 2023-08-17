@@ -15,6 +15,9 @@ export class TutionClassesController {
     constructor(private readonly tutionClassesService: TutionClassesService, private readonly usersService: UsersService) { }
 
 
+    // @Roles('admin')
+    // @UseGuards(RolesGuard)
+    // @UseGuards(JwtAuthGuard)
     @Get("")
     getTutionClasses() {
         return this.tutionClassesService.getTutionClasses()
