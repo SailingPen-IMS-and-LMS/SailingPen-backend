@@ -58,6 +58,11 @@ export class AuthService {
     return this.usersService.update(userId, null);
   }
 
+  
+  async logout(userId: string) {
+    return this.usersService.update(userId, null);
+  }
+
   async registerTutor(createTutorDto: CreateTutorDto) {
     const createdTutor = await this.usersService.createTutor(createTutorDto);
 
