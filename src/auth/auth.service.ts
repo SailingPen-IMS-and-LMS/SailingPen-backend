@@ -16,12 +16,11 @@ import { CreateAdminDto } from 'src/users/dto/create-admin-dto';
 
 @Injectable()
 export class AuthService {
-
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async registerStudent(createStudentDto: CreateStudentDto) {
     const createdStudent = await this.usersService.createStudent(
@@ -68,9 +67,9 @@ export class AuthService {
   }
 
   async createAdmin(createAdminDto: CreateAdminDto) {
-    const createdAdmin = await this.usersService.createAdmin(createAdminDto)
-    const { password, ...otherDetails } = createdAdmin
-    return otherDetails
+    const createdAdmin = await this.usersService.createAdmin(createAdminDto);
+    const { password, ...otherDetails } = createdAdmin;
+    return otherDetails;
   }
 
   async loginToDashboard({ username, password }: DashboardLoginDto) {

@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import {Request} from 'express'
+import { Request } from 'express';
 import { AuthenticatedUser } from 'src/auth/types/jwt.types';
 import { StudentProfile } from 'src/types/users/students.types';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -18,42 +18,42 @@ export class UsersController {
     return this.usersService.getStudents();
   }
 
+  // https://localhost:3000/users/students
+
   @Roles('admin')
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Get('tutors')
   getAllTutors() {
-    return this.usersService.getTutors()
+    return this.usersService.getTutors();
   }
 
   @Roles('student')
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Get('students/get-profile')
-  getStudentProfile(@Req() req:Request): Promise<StudentProfile> {
-    const user = req.user as AuthenticatedUser
-    return this.usersService.getStudentProfileById(user.sub)
+  getStudentProfile(@Req() req: Request): Promise<StudentProfile> {
+    const user = req.user as AuthenticatedUser;
+    return this.usersService.getStudentProfileById(user.sub);
   }
-
 
   @Roles('admin')
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Get('admins/get-profile')
-  getAdminProfile(@Req() req:Request): Promise<AdminProfile> {
-    const user = req.user as AuthenticatedUser
-    return this.usersService.getAdminProfileById(user.sub)
+  getAdminProfile(@Req() req: Request): Promise<AdminProfile> {
+    const user = req.user as AuthenticatedUser;
+    return this.usersService.getAdminProfileById(user.sub);
   }
 
   @Roles('tutor')
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Get('tutors/get-profile')
-  getTutorProfileByTutor(@Req() req:Request) : Promise<TutorProfile> {
-    const user = req.user as AuthenticatedUser
-    return this.usersService.getTutorProfileById(user.sub)
+  getTutorProfileByTutor(@Req() req: Request): Promise<TutorProfile> {
+    const user = req.user as AuthenticatedUser;
+    return this.usersService.getTutorProfileById(user.sub);
   }
-
 
   @Get('students/:username')
   getStudentByUsername(@Param('username') username: string) {
@@ -63,10 +63,10 @@ export class UsersController {
   @Roles('student')
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Get("tutors/get-list-for-students")
+  @Get('tutors/get-list-for-students')
   getTutorListForStudentByStudent(@Req() req: Request) {
-      const user = req.user as AuthenticatedUser
-      const userId = user.sub
-      return this.usersService.getTutorListForStudent(userId)
-  } 
+    const user = req.user as AuthenticatedUser;
+    const userId = user.sub;
+    return this.usersService.getTutorListForStudent(userId);
+  }
 }
