@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import * as cookieParser from 'cookie-parser'
+import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -10,7 +10,11 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enableCors({
     credentials: true,
-    origin: ['http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'],
+    origin: [
+      'http://localhost:3001',
+      'http://localhost:3002',
+      'http://localhost:3003',
+    ],
   });
   app.useGlobalPipes(new ValidationPipe());
   useContainer(app.select(AppModule), { fallbackOnErrors: true });

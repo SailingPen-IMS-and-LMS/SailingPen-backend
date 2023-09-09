@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsEmail, IsDateString, IsBoolean, IsDefined } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEmail,
+  IsDateString,
+  IsBoolean,
+  IsDefined,
+} from 'class-validator';
 import { IsEmailUnique, IsNicUnique } from '../validators';
 import {
   HasMimeType,
@@ -54,7 +61,6 @@ export class CreateStudentDto {
   @IsString()
   @ApiProperty()
   contact_no: string;
-
 
   @IsDefined()
   @ApiProperty()

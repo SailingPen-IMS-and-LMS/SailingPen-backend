@@ -6,7 +6,8 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as argon2 from 'argon2';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/services/users.service';
+import { TutorsService } from '../users/services/tutors.service';
 import { compare } from 'bcrypt';
 import { CreateStudentDto } from '../users/dto/create-student.dto';
 import { StudentLoginDto } from './dto/student-login.dto';
@@ -16,17 +17,16 @@ import { CreateAdminDto } from 'src/users/dto/create-admin-dto';
 
 @Injectable()
 export class AuthService {
-
   constructor(
     private readonly usersService: UsersService,
+    private readonly tutorsService: TutorsService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async registerStudent(createStudentDto: CreateStudentDto) {
-    const createdStudent = await this.usersService.createStudent(
-      createStudentDto,
-    );
+    const createdStudent =
+      await this.usersService.createStudent(createStudentDto);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     // const { password, ...otherDetails } = createdStudent;
@@ -64,7 +64,7 @@ export class AuthService {
   }
 
   async registerTutor(createTutorDto: CreateTutorDto) {
-    const createdTutor = await this.usersService.createTutor(createTutorDto);
+    const createdTutor = await this.tutorsService.createTutor(createTutorDto);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...otherDetails } = createdTutor;
@@ -73,9 +73,10 @@ export class AuthService {
   }
 
   async createAdmin(createAdminDto: CreateAdminDto) {
-    const createdAdmin = await this.usersService.createAdmin(createAdminDto)
-    const { password, ...otherDetails } = createdAdmin
-    return otherDetails
+    const createdAdmin = await this.usersService.createAdmin(createAdminDto);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...otherDetails } = createdAdmin;
+    return otherDetails;
   }
 
   async loginToDashboard({ username, password }: DashboardLoginDto) {

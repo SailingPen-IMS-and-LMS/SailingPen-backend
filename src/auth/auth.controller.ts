@@ -8,11 +8,11 @@ import {
   Req,
   UseGuards,
   Res,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/services/users.service';
 import { CreateStudentDto } from '../users/dto/create-student.dto';
 import { StudentLoginDto } from './dto/student-login.dto';
 import { RefreshTokenGuard } from '../common/guards/refresh-token.guard';
@@ -30,7 +30,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
-  ) { }
+  ) {}
 
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
@@ -41,7 +41,8 @@ export class AuthController {
       const refreshTokenFromRequest = req.user[
         'refreshToken' as keyof Express.User
       ] as string;
-      const { accessToken, refreshToken } = await this.authService.refreshTokens(userId, refreshTokenFromRequest);
+      const { accessToken, refreshToken } =
+        await this.authService.refreshTokens(userId, refreshTokenFromRequest);
       // set refresh token in cookie
       res.cookie('refreshToken', refreshToken, {
         // httpOnly: true,
@@ -65,7 +66,8 @@ export class AuthController {
       const refreshTokenFromRequest = req.user[
         'refreshToken' as keyof Express.User
       ] as string;
-      const { accessToken, refreshToken } = await this.authService.refreshTokens(userId, refreshTokenFromRequest);
+      const { accessToken, refreshToken } =
+        await this.authService.refreshTokens(userId, refreshTokenFromRequest);
 
       const user = await this.usersService.getUserTypeById(userId);
       if (!user) {
@@ -91,7 +93,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('student-login')
   async signInStudent(@Body() loginDto: StudentLoginDto, @Res() res: Response) {
-    const { accessToken, refreshToken } = await this.authService.loginStudent(loginDto);
+    const { accessToken, refreshToken } =
+      await this.authService.loginStudent(loginDto);
 
     // set refresh token in cookie
     res.cookie('refreshToken', refreshToken, {
@@ -103,7 +106,6 @@ export class AuthController {
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
     });
 
-
     return res.send({ accessToken, userType: 'student' });
   }
 
@@ -114,15 +116,13 @@ export class AuthController {
   @Post('student-logout')
   logoutStudent(@Req() req: Request) {
     if (req.user) {
-      const user = req.user as AuthenticatedUser
-      return this.authService.logoutStudent(
-        user.sub
-      );
+      const user = req.user as AuthenticatedUser;
+      return this.authService.logoutStudent(user.sub);
     }
   }
 
-  @HttpCode(HttpStatus.CREATED)
-  @Post('student-register')
+  @HttpCode(HttpStatus.CREATED) // 201
+  @Post('student-register') // /auth/student-register POST
   @FormDataRequest()
   registerAsStudent(@Body() createStudentDto: CreateStudentDto) {
     return this.authService.registerStudent(createStudentDto);
@@ -139,7 +139,6 @@ export class AuthController {
     return this.authService.registerTutor(createTutorDto);
   }
 
-
   @HttpCode(HttpStatus.CREATED)
   @Post('admin-register')
   @FormDataRequest()
@@ -149,10 +148,12 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async loginToDashboard(@Body() loginDto: DashboardLoginDto, @Res() res: Response) {
-
-    const { accessToken, refreshToken, userType } = await this.authService.loginToDashboard(loginDto);
-
+  async loginToDashboard(
+    @Body() loginDto: DashboardLoginDto,
+    @Res() res: Response,
+  ) {
+    const { accessToken, refreshToken, userType } =
+      await this.authService.loginToDashboard(loginDto);
     // set refresh token in cookie
     res.cookie('refreshToken', refreshToken, {
       // httpOnly: true,
@@ -162,6 +163,7 @@ export class AuthController {
       path: '/',
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
     });
+
     return res.send({ accessTokenDashboard: accessToken, userType });
   }
 

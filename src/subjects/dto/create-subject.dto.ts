@@ -2,9 +2,7 @@ import { IsString, IsNotEmpty, IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsSubjectNameUnique, IsSubjectStreamIdValid } from '../validators';
 
-
 export class CreateSubjectDto {
-
   @ApiProperty()
   @IsSubjectNameUnique()
   @IsNotEmpty()
@@ -16,13 +14,10 @@ export class CreateSubjectDto {
   @IsString()
   subject_description: string;
 
-
   @ApiProperty()
-  @IsSubjectStreamIdValid({each: true})
-  @IsNotEmpty({each: true})
-  @IsString({each: true})
+  @IsSubjectStreamIdValid({ each: true })
+  @IsNotEmpty({ each: true })
+  @IsString({ each: true })
   @IsArray()
-  subject_stream_ids: string[]
-
-
+  subject_stream_ids: string[];
 }

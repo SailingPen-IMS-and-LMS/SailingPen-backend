@@ -14,7 +14,7 @@ import {
   HasMimeType,
 } from 'nestjs-form-data';
 import { IsEmailUnique, IsNicUnique, IsUsernameUnique } from '../validators';
-import {IsSubjectIdValid} from 'src/subjects/validators'
+import { IsSubjectIdValid } from 'src/subjects/validators';
 
 export class CreateTutorDto {
   @IsNotEmpty()
@@ -79,7 +79,6 @@ export class CreateTutorDto {
   @IsString({ each: true })
   @ApiProperty()
   qualifications: string[];
-
 
   @IsSubjectIdValid()
   @IsNotEmpty()
