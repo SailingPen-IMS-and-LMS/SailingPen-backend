@@ -164,6 +164,6 @@ export class AuthController {
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
     });
 
-    return res.send({ accessToken, userType });
+    return res.send({ accessTokenDashboard: accessToken, userType });
   }
 }
