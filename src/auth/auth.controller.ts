@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/services/users.service';
 import { CreateStudentDto } from '../users/dto/create-student.dto';
 import { StudentLoginDto } from './dto/student-login.dto';
 import { RefreshTokenGuard } from '../common/guards/refresh-token.guard';
@@ -93,9 +93,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('student-login')
   async signInStudent(@Body() loginDto: StudentLoginDto, @Res() res: Response) {
-    const { accessToken, refreshToken } = await this.authService.loginStudent(
-      loginDto,
-    );
+    const { accessToken, refreshToken } =
+      await this.authService.loginStudent(loginDto);
 
     // set refresh token in cookie
     res.cookie('refreshToken', refreshToken, {
@@ -121,8 +120,8 @@ export class AuthController {
     }
   }
 
-  @HttpCode(HttpStatus.CREATED)
-  @Post('student-register')
+  @HttpCode(HttpStatus.CREATED) // 201
+  @Post('student-register') // /auth/student-register POST
   @FormDataRequest()
   registerAsStudent(@Body() createStudentDto: CreateStudentDto) {
     return this.authService.registerStudent(createStudentDto);
