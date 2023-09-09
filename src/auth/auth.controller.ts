@@ -74,7 +74,7 @@ export class AuthController {
         throw new UnauthorizedException();
       }
 
-      const { user_type } = user;
+      const { user_type } = user
 
       // set refresh token in cookie
       res.cookie('refreshToken', refreshToken, {
@@ -86,7 +86,7 @@ export class AuthController {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
       });
 
-      return res.send({ accessToken, userType: user_type });
+      return res.send({ accessTokenDashboard: accessToken, userType: user_type });
     }
   }
 
@@ -109,6 +109,7 @@ export class AuthController {
     return res.send({ accessToken, userType: 'student' });
   }
 
+  @HttpCode(HttpStatus.OK)
   @Roles('student')
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
@@ -153,7 +154,6 @@ export class AuthController {
   ) {
     const { accessToken, refreshToken, userType } =
       await this.authService.loginToDashboard(loginDto);
-
     // set refresh token in cookie
     res.cookie('refreshToken', refreshToken, {
       // httpOnly: true,
@@ -164,6 +164,18 @@ export class AuthController {
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
     });
 
-    return res.send({ accessToken, userType });
+    return res.send({ accessTokenDashboard: accessToken, userType });
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  logout(@Req() req: Request) {
+    if (req.user) {
+      const user = req.user as AuthenticatedUser
+      return this.authService.logout(
+        user.sub
+      );
+    }
   }
 }
