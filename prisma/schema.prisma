@@ -35,7 +35,7 @@ model User {
   student       Student?
   tutor         Tutor?
   admin         Administrator?
-  created_at     DateTime       @default(now())
+  created_at    DateTime       @default(now())
 }
 
 model Administrator {
@@ -56,14 +56,16 @@ model Student {
 }
 
 model Tutor {
-  tutor_id        String        @id @default(dbgenerated("(concat('tutor_', gen_random_uuid()))::TEXT"))
+  tutor_id        String          @id @default(dbgenerated("(concat('tutor_', gen_random_uuid()))::TEXT"))
   qualifications  String[]
   payment_details Json
-  user            User          @relation(fields: [user_id], references: [user_id])
-  user_id         String        @unique
+  user            User            @relation(fields: [user_id], references: [user_id])
+  user_id         String          @unique
   tutionclasses   TutionClass[]
-  subject         Subject?      @relation(fields: [subject_id], references: [subject_id])
-  subject_id String?
+  subject         Subject?        @relation(fields: [subject_id], references: [subject_id])
+  subject_id      String?
+  library         Library?
+  libraryFolders  LibraryFolder[]
 }
 
 model SubjectStream {
@@ -88,7 +90,7 @@ model TutionClass {
   class_description String
   schedule          Json?
   admission_fee     Decimal?
-  monthly_fee       Decimal?  
+  monthly_fee       Decimal?
   subject           Subject      @relation(fields: [subject_id], references: [subject_id])
   subject_id        String
   tutor             Tutor        @relation(fields: [tutor_id], references: [tutor_id])
@@ -115,4 +117,24 @@ model Attendance {
   student_id      String
   tuition_class   TutionClass @relation(fields: [class_id], references: [class_id])
   class_id        String
+}
+
+model Library {
+  id             Int            @id @default(autoincrement())
+  tutor          Tutor          @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id       String         @unique
+  rootFolder     LibraryFolder? @relation(fields: [root_folder_id], references: [id])
+  root_folder_id Int?           @unique
+}
+
+model LibraryFolder {
+  id         Int             @id @default(autoincrement())
+  name       String
+  created_at DateTime        @default(now())
+  parent     LibraryFolder?  @relation("ChildFolders", fields: [parentId], references: [id])
+  parentId   Int?
+  children   LibraryFolder[] @relation("ChildFolders")
+  Library    Library?
+  tutor      Tutor           @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id   String
 }
