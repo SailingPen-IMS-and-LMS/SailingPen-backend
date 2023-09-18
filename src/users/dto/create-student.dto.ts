@@ -4,7 +4,6 @@ import {
   IsNotEmpty,
   IsEmail,
   IsDateString,
-  IsBoolean,
   IsDefined,
 } from 'class-validator';
 import { IsEmailUnique, IsNicUnique } from '../validators';

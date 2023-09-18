@@ -61,20 +61,21 @@ export class AuthController {
   @Get('refresh-dashboard')
   async refreshDashboardTokens(@Req() req: Request, @Res() res: Response) {
     if (req.user) {
-      // console.log(req.user);
+      console.log(req.user);
       const userId = req.user['sub' as keyof Express.User] as string;
       const refreshTokenFromRequest = req.user[
         'refreshToken' as keyof Express.User
       ] as string;
+      console.log(userId, refreshTokenFromRequest);
       const { accessToken, refreshToken } =
         await this.authService.refreshTokens(userId, refreshTokenFromRequest);
-
+      console.log(accessToken, refreshToken);
       const user = await this.usersService.getUserTypeById(userId);
       if (!user) {
         throw new UnauthorizedException();
       }
 
-      const { user_type } = user
+      const { user_type } = user;
 
       // set refresh token in cookie
       res.cookie('refreshToken', refreshToken, {
@@ -86,7 +87,10 @@ export class AuthController {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
       });
 
-      return res.send({ accessTokenDashboard: accessToken, userType: user_type });
+      return res.send({
+        accessTokenDashboard: accessToken,
+        userType: user_type,
+      });
     }
   }
 
@@ -172,10 +176,8 @@ export class AuthController {
   @Post('logout')
   logout(@Req() req: Request) {
     if (req.user) {
-      const user = req.user as AuthenticatedUser
-      return this.authService.logout(
-        user.sub
-      );
+      const user = req.user as AuthenticatedUser;
+      return this.authService.logout(user.sub);
     }
   }
 }

@@ -106,6 +106,27 @@ export class TutorsService {
           contact_no,
           user_type: 'tutor',
         },
+        include: {
+          tutor: true,
+        },
+      });
+
+      const createdFolder = await this.prisma.libraryFolder.create({
+        data: {
+          name: `${f_name} ${l_name}'s Root Folder - ${createdUser.user_id}`,
+          tutor: {
+            connect: {
+              tutor_id: createdUser.tutor?.tutor_id,
+            },
+          },
+        },
+      });
+
+      await this.prisma.library.create({
+        data: {
+          root_folder_id: createdFolder.id,
+          tutor_id: createdUser.tutor?.tutor_id as string,
+        },
       });
 
       const avatarURL = await this.fileUploader.uploadFile(avatar, {
@@ -169,7 +190,7 @@ export class TutorsService {
     }
   }
 
-  async getTutorListForStudent(userId: string) {
+  async getTutorListForStudent() {
     const tutors = await this.prisma.tutor.findMany({
       select: {
         tutor_id: true,

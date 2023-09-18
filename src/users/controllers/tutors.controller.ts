@@ -14,7 +14,7 @@ export class TutorsController {
   @Roles('admin')
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Get('tutors')
+  @Get('')
   getAllTutors() {
     return this.tutorsService.getTutors();
   }
@@ -22,7 +22,7 @@ export class TutorsController {
   @Roles('tutor')
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Get('tutors/get-profile')
+  @Get('get-profile')
   getTutorProfileByTutor(@Req() req: Request): Promise<TutorProfile> {
     const user = req.user as AuthenticatedUser;
     return this.tutorsService.getTutorProfileById(user.sub);
@@ -31,10 +31,8 @@ export class TutorsController {
   @Roles('student')
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Get('tutors/get-list-for-students')
-  getTutorListForStudentByStudent(@Req() req: Request) {
-    const user = req.user as AuthenticatedUser;
-    const userId = user.sub;
-    return this.tutorsService.getTutorListForStudent(userId);
+  @Get('get-list-for-students')
+  getTutorListForStudentByStudent() {
+    return this.tutorsService.getTutorListForStudent();
   }
 }
