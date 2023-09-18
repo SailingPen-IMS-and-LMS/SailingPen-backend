@@ -137,4 +137,14 @@ model LibraryFolder {
   Library    Library?
   tutor      Tutor           @relation(fields: [tutor_id], references: [tutor_id])
   tutor_id   String
+  Resource   Resource[]
+}
+
+model Resource {
+  id            Int           @id @default(autoincrement())
+  name          String
+  url           String
+  type          String
+  LibraryFolder LibraryFolder @relation(fields: [folder_id], references: [id])
+  folder_id     Int
 }
