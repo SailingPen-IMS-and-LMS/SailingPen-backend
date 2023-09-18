@@ -7,7 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import {
   LibraryFolder,
   LibraryFolderRecursively,
-} from 'src/types/library.types';
+} from 'src/types/library/library.types';
 import { CreateLibraryFolderDto } from '../dto/create-library-folder.dto';
 
 @Injectable()

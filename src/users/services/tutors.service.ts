@@ -190,7 +190,7 @@ export class TutorsService {
     }
   }
 
-  async getTutorListForStudent(userId: string) {
+  async getTutorListForStudent() {
     const tutors = await this.prisma.tutor.findMany({
       select: {
         tutor_id: true,

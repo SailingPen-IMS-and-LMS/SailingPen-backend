@@ -18,6 +18,12 @@ enum UserType {
   student
 }
 
+enum ResourceType {
+  video
+  image
+  document
+}
+
 model User {
   user_id       String         @id @default(dbgenerated("(concat('user_', gen_random_uuid()))::TEXT"))
   nic           String         @unique
@@ -144,7 +150,7 @@ model Resource {
   id            Int           @id @default(autoincrement())
   name          String
   url           String
-  type          String
+  type          ResourceType
   LibraryFolder LibraryFolder @relation(fields: [folder_id], references: [id])
   folder_id     Int
 }

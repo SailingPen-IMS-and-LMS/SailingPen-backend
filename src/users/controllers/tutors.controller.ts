@@ -32,9 +32,7 @@ export class TutorsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Get('get-list-for-students')
-  getTutorListForStudentByStudent(@Req() req: Request) {
-    const user = req.user as AuthenticatedUser;
-    const userId = user.sub;
-    return this.tutorsService.getTutorListForStudent(userId);
+  getTutorListForStudentByStudent() {
+    return this.tutorsService.getTutorListForStudent();
   }
 }
