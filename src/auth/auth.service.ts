@@ -73,10 +73,7 @@ export class AuthService {
 
   async createAdmin(createAdminDto: CreateAdminDto) {
     const createdAdmin = await this.usersService.createAdmin(createAdminDto);
-<<<<<<< HEAD
-=======
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
->>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42
     const { password, ...otherDetails } = createdAdmin;
     return otherDetails;
   }

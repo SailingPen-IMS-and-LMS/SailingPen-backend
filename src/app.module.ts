@@ -11,7 +11,8 @@ import { QuizzesModule } from './quizzes/quizzes.module';
 import { LibraryModule } from './library/library.module';
 
 @Module({
-  imports: [    //these are like paths                                        
+  imports: [
+    //these are like paths
     ConfigModule.forRoot({ isGlobal: true }), //env file
     AuthModule,
     UsersModule,

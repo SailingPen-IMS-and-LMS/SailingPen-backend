@@ -66,16 +66,10 @@ export class AuthController {
       const refreshTokenFromRequest = req.user[
         'refreshToken' as keyof Express.User
       ] as string;
-<<<<<<< HEAD
-      const { accessToken, refreshToken } =
-        await this.authService.refreshTokens(userId, refreshTokenFromRequest);
-
-=======
       console.log(userId, refreshTokenFromRequest);
       const { accessToken, refreshToken } =
         await this.authService.refreshTokens(userId, refreshTokenFromRequest);
       console.log(accessToken, refreshToken);
->>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42
       const user = await this.usersService.getUserTypeById(userId);
       if (!user) {
         throw new UnauthorizedException();
@@ -103,14 +97,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('student-login')
   async signInStudent(@Body() loginDto: StudentLoginDto, @Res() res: Response) {
-<<<<<<< HEAD
-    const { accessToken, refreshToken } = await this.authService.loginStudent(
-      loginDto,
-    );
-=======
     const { accessToken, refreshToken } =
       await this.authService.loginStudent(loginDto);
->>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42
 
     // set refresh token in cookie
     res.cookie('refreshToken', refreshToken, {
@@ -170,10 +158,6 @@ export class AuthController {
   ) {
     const { accessToken, refreshToken, userType } =
       await this.authService.loginToDashboard(loginDto);
-<<<<<<< HEAD
-
-=======
->>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42
     // set refresh token in cookie
     res.cookie('refreshToken', refreshToken, {
       // httpOnly: true,

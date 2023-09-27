@@ -61,7 +61,6 @@ export class UsersService {
     });
   }
 
-<<<<<<< HEAD:src/users/users.service.ts
   async getTutors() {
     const rawTutors = await this.prisma.tutor.findMany({
       select: {
@@ -94,8 +93,6 @@ export class UsersService {
     return tutors;
   }
 
-=======
->>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42:src/users/services/users.service.ts
   getStudentByUsername(username: string) {
     return this.prisma.student.findFirst({
       where: {
@@ -199,55 +196,9 @@ export class UsersService {
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException(error);
-<<<<<<< HEAD:src/users/users.service.ts
     }
   }
 
-  async getTutorProfileById(userId: string): Promise<TutorProfile> {
-    try {
-      const rawTutor = await this.prisma.tutor.findFirst({
-        where: {
-          user_id: userId,
-        },
-        include: {
-          user: {
-            select: {
-              address: true,
-              admin: true,
-              avatar: true,
-              contact_no: true,
-              dob: true,
-              email: true,
-              f_name: true,
-              l_name: true,
-              nic: true,
-              user_id: true,
-              user_type: true,
-              username: true,
-            },
-          },
-        },
-      });
-
-      if (!rawTutor) {
-        throw new Error('Tutor not found');
-      }
-      const { user, ...otherStudentDetails } = rawTutor;
-      return {
-        ...otherStudentDetails,
-        ...user,
-        dob: user.dob.toDateString(),
-        payment_details: JSON.parse(
-          otherStudentDetails.payment_details?.toString() || '{}',
-        ),
-      };
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException(error);
-=======
->>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42:src/users/services/users.service.ts
-    }
-  }
 
   async createStudent({
     dob,
@@ -335,81 +286,7 @@ export class UsersService {
     });
   }
 
-<<<<<<< HEAD:src/users/users.service.ts
-  async createTutor({
-    dob,
-    contact_no,
-    qualifications,
-    bank_name,
-    branch_name,
-    account_no,
-    address,
-    username,
-    f_name,
-    l_name,
-    nic,
-    password,
-    confirm_password,
-    email,
-    avatar,
-    subject_id,
-  }: CreateTutorDto) {
-    try {
-      if (password !== confirm_password) {
-        throw new BadRequestException('Passwords do not match');
-      }
-      password = await hash(password, 12);
-      const generated_dob = new Date(dob);
 
-      const createdUser = await this.prisma.user.create({
-        data: {
-          username,
-          tutor: {
-            create: {
-              payment_details: JSON.stringify({
-                bank_name,
-                branch_name,
-                account_no,
-              }),
-              qualifications,
-              subject: {
-                connect: {
-                  subject_id,
-                },
-              },
-            },
-          },
-          dob: generated_dob,
-          address,
-          nic,
-          password,
-          email,
-          f_name,
-          l_name,
-          contact_no,
-          user_type: 'tutor',
-        },
-      });
-
-      const avatarURL = await this.fileUploader.uploadFile(avatar, {
-        folder: 'tutors/avatars',
-      });
-
-      return this.prisma.user.update({
-        where: {
-          user_id: createdUser.user_id,
-        },
-        data: {
-          avatar: avatarURL,
-        },
-      });
-    } catch (e) {
-      throw new InternalServerErrorException(e);
-    }
-  }
-
-=======
->>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42:src/users/services/users.service.ts
   async createAdmin({
     dob,
     contact_no,
@@ -464,7 +341,6 @@ export class UsersService {
     }
   }
 
-<<<<<<< HEAD:src/users/users.service.ts
   async getTutorListForStudent(userId: string) {
     const tutors = await this.prisma.tutor.findMany({
       select: {
@@ -499,8 +375,6 @@ export class UsersService {
     return tutorList;
   }
 
-=======
->>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42:src/users/services/users.service.ts
   async update(userId: string, refreshToken: string | null) {
     return this.prisma.user.update({
       where: {
