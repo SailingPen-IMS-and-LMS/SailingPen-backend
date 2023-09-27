@@ -6,8 +6,9 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as argon2 from 'argon2';
-import { UsersService } from '../users/users.service';
-import { compare } from 'bcrypt';
+import { UsersService } from '../users/services/users.service';
+import { TutorsService } from '../users/services/tutors.service';
+import { compare, hash } from 'bcrypt';
 import { CreateStudentDto } from '../users/dto/create-student.dto';
 import { StudentLoginDto } from './dto/student-login.dto';
 import { CreateTutorDto } from '../users/dto/create-tutor.dto';
@@ -18,14 +19,14 @@ import { CreateAdminDto } from 'src/users/dto/create-admin-dto';
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
+    private readonly tutorsService: TutorsService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
   async registerStudent(createStudentDto: CreateStudentDto) {
-    const createdStudent = await this.usersService.createStudent(
-      createStudentDto,
-    );
+    const createdStudent =
+      await this.usersService.createStudent(createStudentDto);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     // const { password, ...otherDetails } = createdStudent;
@@ -62,7 +63,7 @@ export class AuthService {
   }
 
   async registerTutor(createTutorDto: CreateTutorDto) {
-    const createdTutor = await this.usersService.createTutor(createTutorDto);
+    const createdTutor = await this.tutorsService.createTutor(createTutorDto);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...otherDetails } = createdTutor;
@@ -72,6 +73,10 @@ export class AuthService {
 
   async createAdmin(createAdminDto: CreateAdminDto) {
     const createdAdmin = await this.usersService.createAdmin(createAdminDto);
+<<<<<<< HEAD
+=======
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+>>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42
     const { password, ...otherDetails } = createdAdmin;
     return otherDetails;
   }
@@ -105,7 +110,7 @@ export class AuthService {
         },
         {
           secret: this.configService.get<string>('JWT_SECRET'),
-          expiresIn: '15m',
+          expiresIn: '7d',
         },
       ),
       this.jwtService.signAsync(
@@ -128,12 +133,11 @@ export class AuthService {
 
   async refreshTokens(userId: string, refreshToken: string) {
     const user = await this.usersService.getUserById(userId);
+    console.log(user);
     if (!user || !user.refresh_token)
       throw new ForbiddenException('Access Denied');
-    const refreshTokenMatches = await argon2.verify(
-      user.refresh_token,
-      refreshToken,
-    );
+    const refreshTokenMatches = await compare(refreshToken, user.refresh_token);
+    console.log(refreshTokenMatches);
     if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
     const tokens = await this.getTokens(user.user_id, user.username);
     await this.updateRefreshToken(user.user_id, tokens.refreshToken);
@@ -141,6 +145,6 @@ export class AuthService {
   }
 
   hashData(data: string) {
-    return argon2.hash(data);
+    return hash(data, 12);
   }
 }

@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { SubjectsModule } from './subjects/subjects.module';
 import { TutionClassesModule } from './tution-classes/tution-classes.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
+import { LibraryModule } from './library/library.module';
 
 @Module({
   imports: [    //these are like paths                                        
@@ -18,6 +19,7 @@ import { QuizzesModule } from './quizzes/quizzes.module';
     SubjectsModule,
     TutionClassesModule,
     QuizzesModule,
+    LibraryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

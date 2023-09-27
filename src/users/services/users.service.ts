@@ -5,14 +5,12 @@ import {
 } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { hash } from 'bcrypt';
-import { CreateStudentDto } from './dto/create-student.dto';
-import { CreateTutorDto } from './dto/create-tutor.dto';
+import { CreateStudentDto } from '../dto/create-student.dto';
 import { FileUploader } from 'src/utils/FileUploader';
 import { BarcodeGenerator } from 'src/utils/BarcodeGenerator';
-import { CreateAdminDto } from './dto/create-admin-dto';
+import { CreateAdminDto } from '../dto/create-admin-dto';
 import { StudentProfile } from 'src/types/users/students.types';
 import { AdminProfile } from 'src/types/users/admin.types';
-import { TutorProfile } from 'src/types/users/tutor.types';
 
 @Injectable()
 export class UsersService {
@@ -63,6 +61,7 @@ export class UsersService {
     });
   }
 
+<<<<<<< HEAD:src/users/users.service.ts
   async getTutors() {
     const rawTutors = await this.prisma.tutor.findMany({
       select: {
@@ -95,6 +94,8 @@ export class UsersService {
     return tutors;
   }
 
+=======
+>>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42:src/users/services/users.service.ts
   getStudentByUsername(username: string) {
     return this.prisma.student.findFirst({
       where: {
@@ -198,6 +199,7 @@ export class UsersService {
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException(error);
+<<<<<<< HEAD:src/users/users.service.ts
     }
   }
 
@@ -242,6 +244,8 @@ export class UsersService {
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException(error);
+=======
+>>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42:src/users/services/users.service.ts
     }
   }
 
@@ -331,6 +335,7 @@ export class UsersService {
     });
   }
 
+<<<<<<< HEAD:src/users/users.service.ts
   async createTutor({
     dob,
     contact_no,
@@ -403,6 +408,8 @@ export class UsersService {
     }
   }
 
+=======
+>>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42:src/users/services/users.service.ts
   async createAdmin({
     dob,
     contact_no,
@@ -457,6 +464,7 @@ export class UsersService {
     }
   }
 
+<<<<<<< HEAD:src/users/users.service.ts
   async getTutorListForStudent(userId: string) {
     const tutors = await this.prisma.tutor.findMany({
       select: {
@@ -491,6 +499,8 @@ export class UsersService {
     return tutorList;
   }
 
+=======
+>>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42:src/users/services/users.service.ts
   async update(userId: string, refreshToken: string | null) {
     return this.prisma.user.update({
       where: {

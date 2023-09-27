@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { UsersController } from './users.controller';
-import { FileUploader } from 'src/utils/FileUploader';
-import { BarcodeGenerator } from 'src/utils/BarcodeGenerator';
+import { UsersService } from './services/users.service';
+import { TutorsService } from './services/tutors.service';
+import { UsersController } from './controllers/users.controller';
+import { TutorsController } from './controllers/tutors.controller';
+import { UtilsModule } from '../utils/utils.module';
 
 @Module({
-  providers: [UsersService, FileUploader, BarcodeGenerator],
-  controllers: [UsersController],
-  exports: [UsersService],
+  imports: [UtilsModule],
+  providers: [UsersService, TutorsService],
+  controllers: [UsersController, TutorsController],
+  exports: [UsersService, TutorsService],
 })
 export class UsersModule {}

@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/services/users.service';
 import { CreateStudentDto } from '../users/dto/create-student.dto';
 import { StudentLoginDto } from './dto/student-login.dto';
 import { RefreshTokenGuard } from '../common/guards/refresh-token.guard';
@@ -61,14 +61,21 @@ export class AuthController {
   @Get('refresh-dashboard')
   async refreshDashboardTokens(@Req() req: Request, @Res() res: Response) {
     if (req.user) {
-      // console.log(req.user);
+      console.log(req.user);
       const userId = req.user['sub' as keyof Express.User] as string;
       const refreshTokenFromRequest = req.user[
         'refreshToken' as keyof Express.User
       ] as string;
+<<<<<<< HEAD
       const { accessToken, refreshToken } =
         await this.authService.refreshTokens(userId, refreshTokenFromRequest);
 
+=======
+      console.log(userId, refreshTokenFromRequest);
+      const { accessToken, refreshToken } =
+        await this.authService.refreshTokens(userId, refreshTokenFromRequest);
+      console.log(accessToken, refreshToken);
+>>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42
       const user = await this.usersService.getUserTypeById(userId);
       if (!user) {
         throw new UnauthorizedException();
@@ -96,9 +103,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('student-login')
   async signInStudent(@Body() loginDto: StudentLoginDto, @Res() res: Response) {
+<<<<<<< HEAD
     const { accessToken, refreshToken } = await this.authService.loginStudent(
       loginDto,
     );
+=======
+    const { accessToken, refreshToken } =
+      await this.authService.loginStudent(loginDto);
+>>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42
 
     // set refresh token in cookie
     res.cookie('refreshToken', refreshToken, {
@@ -125,8 +137,8 @@ export class AuthController {
     }
   }
 
-  @HttpCode(HttpStatus.CREATED)
-  @Post('student-register')
+  @HttpCode(HttpStatus.CREATED) // 201
+  @Post('student-register') // /auth/student-register POST
   @FormDataRequest()
   registerAsStudent(@Body() createStudentDto: CreateStudentDto) {
     return this.authService.registerStudent(createStudentDto);
@@ -158,7 +170,10 @@ export class AuthController {
   ) {
     const { accessToken, refreshToken, userType } =
       await this.authService.loginToDashboard(loginDto);
+<<<<<<< HEAD
 
+=======
+>>>>>>> b136df4fc943baa8ddbf799a5d8e3e31bba99a42
     // set refresh token in cookie
     res.cookie('refreshToken', refreshToken, {
       // httpOnly: true,
@@ -168,6 +183,7 @@ export class AuthController {
       path: '/',
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
     });
+
     return res.send({ accessTokenDashboard: accessToken, userType });
   }
 
