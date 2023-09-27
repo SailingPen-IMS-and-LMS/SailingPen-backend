@@ -8,7 +8,7 @@ import {
   Req,
   UseGuards,
   Res,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
@@ -30,7 +30,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
-  ) { }
+  ) {}
 
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
@@ -41,7 +41,8 @@ export class AuthController {
       const refreshTokenFromRequest = req.user[
         'refreshToken' as keyof Express.User
       ] as string;
-      const { accessToken, refreshToken } = await this.authService.refreshTokens(userId, refreshTokenFromRequest);
+      const { accessToken, refreshToken } =
+        await this.authService.refreshTokens(userId, refreshTokenFromRequest);
       // set refresh token in cookie
       res.cookie('refreshToken', refreshToken, {
         // httpOnly: true,
@@ -65,14 +66,15 @@ export class AuthController {
       const refreshTokenFromRequest = req.user[
         'refreshToken' as keyof Express.User
       ] as string;
-      const { accessToken, refreshToken } = await this.authService.refreshTokens(userId, refreshTokenFromRequest);
+      const { accessToken, refreshToken } =
+        await this.authService.refreshTokens(userId, refreshTokenFromRequest);
 
       const user = await this.usersService.getUserTypeById(userId);
       if (!user) {
         throw new UnauthorizedException();
       }
 
-      const { user_type } = user
+      const { user_type } = user;
 
       // set refresh token in cookie
       res.cookie('refreshToken', refreshToken, {
@@ -84,14 +86,19 @@ export class AuthController {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
       });
 
-      return res.send({ accessTokenDashboard: accessToken, userType: user_type });
+      return res.send({
+        accessTokenDashboard: accessToken,
+        userType: user_type,
+      });
     }
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('student-login')
   async signInStudent(@Body() loginDto: StudentLoginDto, @Res() res: Response) {
-    const { accessToken, refreshToken } = await this.authService.loginStudent(loginDto);
+    const { accessToken, refreshToken } = await this.authService.loginStudent(
+      loginDto,
+    );
 
     // set refresh token in cookie
     res.cookie('refreshToken', refreshToken, {
@@ -103,7 +110,6 @@ export class AuthController {
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
     });
 
-
     return res.send({ accessToken, userType: 'student' });
   }
 
@@ -114,10 +120,8 @@ export class AuthController {
   @Post('student-logout')
   logoutStudent(@Req() req: Request) {
     if (req.user) {
-      const user = req.user as AuthenticatedUser
-      return this.authService.logoutStudent(
-        user.sub
-      );
+      const user = req.user as AuthenticatedUser;
+      return this.authService.logoutStudent(user.sub);
     }
   }
 
@@ -139,7 +143,6 @@ export class AuthController {
     return this.authService.registerTutor(createTutorDto);
   }
 
-
   @HttpCode(HttpStatus.CREATED)
   @Post('admin-register')
   @FormDataRequest()
@@ -149,9 +152,12 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async loginToDashboard(@Body() loginDto: DashboardLoginDto, @Res() res: Response) {
-
-    const { accessToken, refreshToken, userType } = await this.authService.loginToDashboard(loginDto);
+  async loginToDashboard(
+    @Body() loginDto: DashboardLoginDto,
+    @Res() res: Response,
+  ) {
+    const { accessToken, refreshToken, userType } =
+      await this.authService.loginToDashboard(loginDto);
 
     // set refresh token in cookie
     res.cookie('refreshToken', refreshToken, {
@@ -170,10 +176,8 @@ export class AuthController {
   @Post('logout')
   logout(@Req() req: Request) {
     if (req.user) {
-      const user = req.user as AuthenticatedUser
-      return this.authService.logout(
-        user.sub
-      );
+      const user = req.user as AuthenticatedUser;
+      return this.authService.logout(user.sub);
     }
   }
 }

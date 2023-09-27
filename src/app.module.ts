@@ -10,8 +10,8 @@ import { TutionClassesModule } from './tution-classes/tution-classes.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+  imports: [    //these are like paths                                        
+    ConfigModule.forRoot({ isGlobal: true }), //env file
     AuthModule,
     UsersModule,
     NestjsFormDataModule.config({ isGlobal: true }),

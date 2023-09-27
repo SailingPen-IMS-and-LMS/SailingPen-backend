@@ -4,6 +4,6 @@ import { QuizzesController } from './quizzes.controller';
 
 @Module({
   providers: [QuizzesService],
-  controllers: [QuizzesController]
+  controllers: [QuizzesController],
 })
 export class QuizzesModule {}

@@ -13,7 +13,9 @@ import { PrismaClient } from '@prisma/client';
  * @param validationOptions
  * @constructor
  */
-export function IsSubjectStreamNameUnique(validationOptions?: ValidationOptions) {
+export function IsSubjectStreamNameUnique(
+  validationOptions?: ValidationOptions,
+) {
   return function (object: any, propertyName: string) {
     registerDecorator({
       target: object.constructor,
@@ -39,7 +41,9 @@ export class NotExistingSubjectStreamNameValidation
       .findFirst({ where: { stream_name: value } })
       .then((stream) => {
         if (stream) {
-          throw new UnprocessableEntityException('Subject stream already exists');
+          throw new UnprocessableEntityException(
+            'Subject stream already exists',
+          );
         } else {
           return true;
         }
