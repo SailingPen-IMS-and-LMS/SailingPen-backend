@@ -6,4 +6,4 @@ import { FlashcardsService } from './flashcards.service';
   controllers: [FlashcardsController],
   providers: [FlashcardsService],
 })
-export class FlashcardsModule {}
+export class FlashcardModule {}

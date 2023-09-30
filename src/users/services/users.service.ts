@@ -199,7 +199,6 @@ export class UsersService {
     }
   }
 
-
   async createStudent({
     dob,
     parent_contact_no,
@@ -285,7 +284,6 @@ export class UsersService {
       },
     });
   }
-
 
   async createAdmin({
     dob,
