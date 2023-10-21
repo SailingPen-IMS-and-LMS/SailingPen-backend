@@ -20,7 +20,11 @@ export class SubjectsService {
   }
 
   async getSubjectStreams() {
-    return this.prisma.subjectStream.findMany({});
+    return this.prisma.subjectStream.findMany({
+      include: {
+        subjects: true,
+      },
+    });
   }
 
   async createSubject({
