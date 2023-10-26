@@ -1,22 +1,18 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
-  ForbiddenException,
 } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
 import {
   LibraryFolder,
   LibraryFolderRecursively,
 } from 'src/types/library/library.types';
 import { CreateLibraryFolderDto } from '../dto/create-library-folder.dto';
+import { PrismaService } from '../../prisma.service';
 
 @Injectable()
 export class LibraryService {
-  prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async createFolder(
     userId: string,
@@ -33,7 +29,6 @@ export class LibraryService {
         tutor: true,
       },
     });
-    console.log(parentFolder);
     if (!parentFolder) {
       throw new ForbiddenException(`You don't have access to this folder`);
     }
@@ -78,12 +73,16 @@ export class LibraryService {
   }
 
   async getFolderChildrenOfFolder(userId: string, parentFolderId: number) {
+    const parent_folder_id = Number(parentFolderId);
+    if (isNaN(parent_folder_id)) {
+      throw new InternalServerErrorException('Invalid folder id');
+    }
     const parentFolder = await this.prisma.libraryFolder.findFirst({
       where: {
         tutor: {
           user_id: userId,
         },
-        id: Number(parentFolderId),
+        id: parent_folder_id,
       },
     });
     if (!parentFolder) {

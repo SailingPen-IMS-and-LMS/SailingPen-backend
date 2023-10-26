@@ -3,16 +3,21 @@ import { ConfigModule } from '@nestjs/config';
 import { NestjsFormDataModule } from 'nestjs-form-data';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+// Importing modules
+import { PrismaModule } from './prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { SubjectsModule } from './subjects/subjects.module';
 import { TutionClassesModule } from './tution-classes/tution-classes.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { LibraryModule } from './library/library.module';
+import { FlashcardModule } from './flashcards/flashcards.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    //these are like paths
+    ConfigModule.forRoot({ isGlobal: true }), //env file
+    PrismaModule,
     AuthModule,
     UsersModule,
     NestjsFormDataModule.config({ isGlobal: true }),
@@ -20,6 +25,7 @@ import { LibraryModule } from './library/library.module';
     TutionClassesModule,
     QuizzesModule,
     LibraryModule,
+    FlashcardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import * as argon2 from 'argon2';
 import { UsersService } from '../users/services/users.service';
 import { TutorsService } from '../users/services/tutors.service';
 import { compare, hash } from 'bcrypt';
@@ -42,7 +41,6 @@ export class AuthService {
   async loginStudent({ username, password }: StudentLoginDto) {
     const student = await this.usersService.getStudentByUsername(username);
     if (!student) {
-      console.log('Username not found');
       throw new BadRequestException(`Username doesn't exist`);
     }
     // const tokens = await this.getTokens(student.user_id, student.user.username);
@@ -81,7 +79,6 @@ export class AuthService {
   async loginToDashboard({ username, password }: DashboardLoginDto) {
     const user = await this.usersService.getUserByUsername(username);
     if (!user) {
-      console.log('Username not found');
       throw new BadRequestException(`Username doesn't exist`);
     }
     // const tokens = await this.getTokens(student.user_id, student.user.username);
@@ -130,11 +127,9 @@ export class AuthService {
 
   async refreshTokens(userId: string, refreshToken: string) {
     const user = await this.usersService.getUserById(userId);
-    console.log(user);
     if (!user || !user.refresh_token)
       throw new ForbiddenException('Access Denied');
     const refreshTokenMatches = await compare(refreshToken, user.refresh_token);
-    console.log(refreshTokenMatches);
     if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
     const tokens = await this.getTokens(user.user_id, user.username);
     await this.updateRefreshToken(user.user_id, tokens.refreshToken);

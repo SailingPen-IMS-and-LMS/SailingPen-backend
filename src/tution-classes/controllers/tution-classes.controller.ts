@@ -2,17 +2,17 @@ import { UsersService } from 'src/users/services/users.service';
 import {
   Body,
   Controller,
-  Post,
-  Get,
-  UseGuards,
-  Req,
-  Query,
   ForbiddenException,
+  Get,
+  Post,
+  Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { TutionClassesService } from './tution-classes.service';
-import { CreateTutionClassDto } from './dto/create-tution-class.dto';
-import { EnrollToClassDto } from './dto/enroll-to-class.dto';
+import { TutionClassesService } from '../services/tution-classes.service';
+import { CreateTutionClassDto } from '../dto/create-tution-class.dto';
+import { EnrollToClassDto } from '../dto/enroll-to-class.dto';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -59,9 +59,7 @@ export class TutionClassesController {
   ) {
     const user = req.user as AuthenticatedUser;
     const { sub } = user;
-    console.log(`sub: ${sub}`);
     const { student_id } = enrollToClassDto;
-    console.log(`student_id: ${student_id}`);
     const foundStudent = await this.usersService.getStudentByUserId(sub);
     if (!foundStudent || foundStudent.student_id !== student_id) {
       throw new ForbiddenException(
@@ -95,5 +93,15 @@ export class TutionClassesController {
       userId,
       tutorId,
     );
+  }
+
+  @Roles('tutor')
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Get('/my-classes')
+  getMyTutionClasses(@Req() req: Request) {
+    const user = req.user as AuthenticatedUser;
+    const userId = user.sub;
+    return this.tutionClassesService.getMyTutionClasses(userId);
   }
 }

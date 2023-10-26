@@ -1,15 +1,12 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { CreateSubjectDto } from './dto/create-subject.dto';
 import { CreateSubjectStreamDto } from './dto/create-subject-stream.dto';
+import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class SubjectsService {
-  prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async getSubjects() {
     return this.prisma.subject.findMany({
@@ -20,7 +17,11 @@ export class SubjectsService {
   }
 
   async getSubjectStreams() {
-    return this.prisma.subjectStream.findMany({});
+    return this.prisma.subjectStream.findMany({
+      include: {
+        subjects: true,
+      },
+    });
   }
 
   async createSubject({

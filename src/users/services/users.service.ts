@@ -1,9 +1,8 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
-  BadRequestException,
 } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { CreateStudentDto } from '../dto/create-student.dto';
 import { FileUploader } from 'src/utils/FileUploader';
@@ -11,17 +10,15 @@ import { BarcodeGenerator } from 'src/utils/BarcodeGenerator';
 import { CreateAdminDto } from '../dto/create-admin-dto';
 import { StudentProfile } from 'src/types/users/students.types';
 import { AdminProfile } from 'src/types/users/admin.types';
+import { PrismaService } from '../../prisma.service';
 
 @Injectable()
 export class UsersService {
-  prisma: PrismaClient;
-
   constructor(
     private readonly fileUploader: FileUploader,
     private readonly barcodeGenerator: BarcodeGenerator,
-  ) {
-    this.prisma = new PrismaClient();
-  }
+    private readonly prisma: PrismaService,
+  ) {}
 
   getUserTypeById(userId: string) {
     return this.prisma.user.findUnique({
@@ -59,6 +56,38 @@ export class UsersService {
         student: true,
       },
     });
+  }
+
+  async getTutors() {
+    const rawTutors = await this.prisma.tutor.findMany({
+      select: {
+        tutor_id: true,
+        subject: {
+          select: { subject_name: true },
+        },
+        user: {
+          select: {
+            f_name: true,
+            l_name: true,
+            email: true,
+            avatar: true,
+            created_at: true,
+          },
+        },
+      },
+    });
+
+    const tutors = rawTutors.map((rawTutor) => {
+      const { tutor_id, subject, user } = rawTutor;
+      return {
+        tutor_id,
+        ...subject,
+        ...user,
+        created_at: user.created_at.toDateString(),
+      };
+    });
+
+    return tutors;
   }
 
   getStudentByUsername(username: string) {
@@ -196,9 +225,7 @@ export class UsersService {
     const totalNumberOfStudents = await this.prisma.student.count();
     // Generate username by padding '0' to the left of the total number of students to make it 8 digits
     const username = (totalNumberOfStudents + 1).toString().padStart(8, '0');
-    console.log(username);
     const barcode = await this.barcodeGenerator.generateBarcode(username);
-    console.log(barcode);
 
     const createdStudent = await this.prisma.user.create({
       data: {
@@ -221,13 +248,9 @@ export class UsersService {
       },
     });
 
-    console.log(createdStudent);
-
     const avatarURL = await this.fileUploader.uploadFile(avatar, {
       folder: 'tutors/avatars',
     });
-
-    console.log(avatarURL);
 
     const barcodeURL = await this.fileUploader.uploadFileWithFileObject(
       barcode,
@@ -235,8 +258,6 @@ export class UsersService {
         folder: 'tutors/barcodes',
       },
     );
-
-    console.log(barcodeURL);
 
     return this.prisma.user.update({
       where: {
@@ -305,6 +326,38 @@ export class UsersService {
     } catch (e) {
       throw new InternalServerErrorException(e);
     }
+  }
+
+  async getTutorListForStudent(userId: string) {
+    const tutors = await this.prisma.tutor.findMany({
+      select: {
+        tutor_id: true,
+        subject: true,
+        user: {
+          select: {
+            f_name: true,
+            l_name: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+
+    return tutors.map((tutor) => {
+      const subject = tutor.subject?.subject_name;
+      const tutor_id = tutor.tutor_id;
+      const tutor_f_name = tutor.user.f_name;
+      const tutor_l_name = tutor.user.l_name;
+      const tutor_avatar = tutor.user.avatar;
+
+      return {
+        tutor_id,
+        tutor_f_name,
+        tutor_l_name,
+        tutor_avatar,
+        subject,
+      };
+    });
   }
 
   async update(userId: string, refreshToken: string | null) {

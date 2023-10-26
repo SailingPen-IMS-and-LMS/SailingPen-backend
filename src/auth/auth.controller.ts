@@ -36,7 +36,6 @@ export class AuthController {
   @Get('refresh')
   async refreshTokens(@Req() req: Request, @Res() res: Response) {
     if (req.user) {
-      // console.log(req.user);
       const userId = req.user['sub' as keyof Express.User] as string;
       const refreshTokenFromRequest = req.user[
         'refreshToken' as keyof Express.User
@@ -61,15 +60,12 @@ export class AuthController {
   @Get('refresh-dashboard')
   async refreshDashboardTokens(@Req() req: Request, @Res() res: Response) {
     if (req.user) {
-      console.log(req.user);
       const userId = req.user['sub' as keyof Express.User] as string;
       const refreshTokenFromRequest = req.user[
         'refreshToken' as keyof Express.User
       ] as string;
-      console.log(userId, refreshTokenFromRequest);
       const { accessToken, refreshToken } =
         await this.authService.refreshTokens(userId, refreshTokenFromRequest);
-      console.log(accessToken, refreshToken);
       const user = await this.usersService.getUserTypeById(userId);
       if (!user) {
         throw new UnauthorizedException();
@@ -139,7 +135,6 @@ export class AuthController {
   @Post('tutor-register')
   @FormDataRequest()
   registerAsTutor(@Body() createTutorDto: CreateTutorDto) {
-    console.log(createTutorDto);
     return this.authService.registerTutor(createTutorDto);
   }
 

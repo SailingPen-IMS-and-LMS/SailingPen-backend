@@ -3,24 +3,29 @@ import {
   InternalServerErrorException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-import { CreateTutionClassDto } from './dto/create-tution-class.dto';
-import { EnrollToClassDto } from './dto/enroll-to-class.dto';
+import { CreateTutionClassDto } from '../dto/create-tution-class.dto';
+import { EnrollToClassDto } from '../dto/enroll-to-class.dto';
+import { PrismaService } from '../../prisma.service';
 
 @Injectable()
 export class TutionClassesService {
-  prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   getTutionClasses() {
     return this.prisma.tutionClass.findMany({
       include: {
         subject: true,
         tutor: { include: { user: true } },
-        enrollment: true,
+      },
+    });
+  }
+
+  getMyTutionClasses(userId: string) {
+    return this.prisma.tutionClass.findMany({
+      where: {
+        tutor: {
+          user_id: userId,
+        },
       },
     });
   }
@@ -58,7 +63,6 @@ export class TutionClassesService {
   }
 
   async getClassesForTheStudentToEnrollIn(userId: string, tutorId: string) {
-    console.log(`received tutor id ${tutorId} and user id ${userId}`);
     // get all classes, but not the ones that the student is already enrolled in
     const tutionClasses = await this.prisma.tutionClass.findMany({
       where: {
@@ -78,7 +82,6 @@ export class TutionClassesService {
         ],
       },
     });
-    console.log(tutionClasses);
     return tutionClasses;
   }
 
