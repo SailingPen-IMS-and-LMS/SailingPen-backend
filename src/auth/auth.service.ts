@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import * as argon2 from 'argon2';
 import { UsersService } from '../users/services/users.service';
 import { TutorsService } from '../users/services/tutors.service';
 import { compare, hash } from 'bcrypt';

@@ -6,22 +6,20 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosError } from 'axios';
-import { PrismaClient, ResourceType } from '@prisma/client';
+import { ResourceType } from '@prisma/client';
 import { FileUploader } from '../../utils/FileUploader';
 import { CreateImageOrDocumentResourceDto } from '../dto/create-image-or-document-resource.dto';
 import { CreateVideoResourceDto } from '../dto/create-video.dto';
 import { CloudFlareStreamUploadResult } from '../../types/library/resource-types';
+import { PrismaService } from '../../prisma.service';
 
 @Injectable()
 export class ResourcesService {
-  prisma: PrismaClient;
-
   constructor(
     private readonly fileUploader: FileUploader,
     private readonly configService: ConfigService,
-  ) {
-    this.prisma = new PrismaClient();
-  }
+    private readonly prisma: PrismaService,
+  ) {}
 
   async createResource(
     userId: string,

@@ -10,9 +10,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { TutionClassesService } from './tution-classes.service';
-import { CreateTutionClassDto } from './dto/create-tution-class.dto';
-import { EnrollToClassDto } from './dto/enroll-to-class.dto';
+import { TutionClassesService } from '../services/tution-classes.service';
+import { CreateTutionClassDto } from '../dto/create-tution-class.dto';
+import { EnrollToClassDto } from '../dto/enroll-to-class.dto';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';

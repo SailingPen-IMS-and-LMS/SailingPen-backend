@@ -1,22 +1,18 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
-  ForbiddenException,
 } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
 import {
   LibraryFolder,
   LibraryFolderRecursively,
 } from 'src/types/library/library.types';
 import { CreateLibraryFolderDto } from '../dto/create-library-folder.dto';
+import { PrismaService } from '../../prisma.service';
 
 @Injectable()
 export class LibraryService {
-  prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async createFolder(
     userId: string,

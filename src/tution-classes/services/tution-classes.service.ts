@@ -3,17 +3,13 @@ import {
   InternalServerErrorException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-import { CreateTutionClassDto } from './dto/create-tution-class.dto';
-import { EnrollToClassDto } from './dto/enroll-to-class.dto';
+import { CreateTutionClassDto } from '../dto/create-tution-class.dto';
+import { EnrollToClassDto } from '../dto/enroll-to-class.dto';
+import { PrismaService } from '../../prisma.service';
 
 @Injectable()
 export class TutionClassesService {
-  prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   getTutionClasses() {
     return this.prisma.tutionClass.findMany({

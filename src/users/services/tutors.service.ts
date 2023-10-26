@@ -3,7 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaService } from '../../prisma.service';
 import { FileUploader } from 'src/utils/FileUploader';
 import { BarcodeGenerator } from 'src/utils/BarcodeGenerator';
 import { TutorProfile } from 'src/types/users/tutor.types';
@@ -12,14 +12,11 @@ import { hash } from 'bcrypt';
 
 @Injectable()
 export class TutorsService {
-  prisma: PrismaClient;
-
   constructor(
     private readonly fileUploader: FileUploader,
     private readonly barcodeGenerator: BarcodeGenerator,
-  ) {
-    this.prisma = new PrismaClient();
-  }
+    private readonly prisma: PrismaService,
+  ) {}
 
   async getTutors() {
     const rawTutors = await this.prisma.tutor.findMany({

@@ -1,6 +1,6 @@
 import { MemoryStoredFile } from 'nestjs-form-data';
 import { Injectable } from '@nestjs/common';
-import { S3Client, S3ClientConfig, PutObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand, S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
 import { v4 as uuid4 } from 'uuid';
 import { File } from '@web-std/file';
 
@@ -69,8 +69,7 @@ export class FileUploader {
     try {
       await this.s3.send(params);
       // get public url
-      const url = `https://${bucket}.s3.ap-south-1.amazonaws.com/${name}`;
-      return url;
+      return `https://${bucket}.s3.ap-south-1.amazonaws.com/${name}`;
     } catch (e) {
       console.log(e);
     }

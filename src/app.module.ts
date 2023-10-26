@@ -4,6 +4,7 @@ import { NestjsFormDataModule } from 'nestjs-form-data';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 // Importing modules
+import { PrismaModule } from './prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { SubjectsModule } from './subjects/subjects.module';
@@ -16,6 +17,7 @@ import { FlashcardModule } from './flashcards/flashcards.module';
   imports: [
     //these are like paths
     ConfigModule.forRoot({ isGlobal: true }), //env file
+    PrismaModule,
     AuthModule,
     UsersModule,
     NestjsFormDataModule.config({ isGlobal: true }),

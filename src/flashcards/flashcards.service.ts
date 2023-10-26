@@ -1,15 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFlashcardDeckDto } from './dto/create-flashcard.dto';  
-import { PrismaClient } from '@prisma/client';
-
+import { CreateFlashcardDeckDto } from './dto/create-flashcard.dto';
+import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class FlashcardsService {
-  prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   getAllFlashcards() {
     return [
@@ -31,9 +26,11 @@ export class FlashcardsService {
     ];
   }
 
-  createFlashcardDeck({ name, description, flashcards }: CreateFlashcardDeckDto) {
-    
-    
+  createFlashcardDeck({
+    name,
+    description,
+    flashcards,
+  }: CreateFlashcardDeckDto) {
     const flashcardDeck = this.prisma.flashcardDeck.create({
       data: {
         name,

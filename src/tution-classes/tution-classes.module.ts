@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TutionClassesService } from './tution-classes.service';
-import { TutionClassesController } from './tution-classes.controller';
+import { TutionClassesService } from './services/tution-classes.service';
+import { TutionClassesController } from './controllers/tution-classes.controller';
 import { UsersModule } from 'src/users/users.module';
 
 @Module({
