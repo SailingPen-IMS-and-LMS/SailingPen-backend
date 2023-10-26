@@ -10,11 +10,12 @@ import { SubjectsModule } from './subjects/subjects.module';
 import { TutionClassesModule } from './tution-classes/tution-classes.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { LibraryModule } from './library/library.module';
-import { ExamplesModule } from './examples/examples.module';
-//
+import { FlashcardModule } from './flashcards/flashcards.module';
+
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    //these are like paths
+    ConfigModule.forRoot({ isGlobal: true }), //env file
     AuthModule,
     UsersModule,
     NestjsFormDataModule.config({ isGlobal: true }),
@@ -22,7 +23,7 @@ import { ExamplesModule } from './examples/examples.module';
     TutionClassesModule,
     QuizzesModule,
     LibraryModule,
-    ExamplesModule,
+    FlashcardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

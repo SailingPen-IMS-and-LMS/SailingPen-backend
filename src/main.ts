@@ -16,7 +16,7 @@ async function bootstrap() {
       'http://localhost:3003',
     ],
   });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe()); //for the gobla validation
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   const config = new DocumentBuilder()
