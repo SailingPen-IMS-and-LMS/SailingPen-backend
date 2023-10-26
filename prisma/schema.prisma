@@ -51,15 +51,16 @@ model Administrator {
 }
 
 model Student {
-  student_id        String          @id @default(dbgenerated("(concat('student_', gen_random_uuid()))::TEXT"))
-  school            String
-  parent_contact_no String
-  barcode           String?
-  user              User            @relation(fields: [user_id], references: [user_id])
-  user_id           String          @unique
-  Enrollment        Enrollment[]
-  Attendance        Attendance[]
-  FlashcardDeck     FlashcardDeck[]
+  student_id              String                    @id @default(dbgenerated("(concat('student_', gen_random_uuid()))::TEXT"))
+  school                  String
+  parent_contact_no       String
+  barcode                 String?
+  user                    User                      @relation(fields: [user_id], references: [user_id])
+  user_id                 String                    @unique
+  Enrollment              Enrollment[]
+  Attendance              Attendance[]
+  FlashcardDeck           FlashcardDeck[]
+  lessonPacks StudentBoughtLessonPack[]
 }
 
 model Tutor {
@@ -74,6 +75,7 @@ model Tutor {
   library         Library?
   libraryFolders  LibraryFolder[]
   FlashcardDeck   FlashcardDeck[]
+  lessonPack      LessonPack[]
 }
 
 model SubjectStream {
@@ -156,17 +158,40 @@ model Resource {
   type          ResourceType
   LibraryFolder LibraryFolder @relation(fields: [folder_id], references: [id])
   folder_id     Int
+  Lesson_packs  LessonPack[]
 }
 
-//create the model for flash cards
+model LessonPack {
+  id                      String                    @id @default(dbgenerated("(concat('lp_', gen_random_uuid()))::TEXT"))
+  name                    String
+  description             String
+  price                   Decimal
+  created_at              DateTime
+  updated_at              DateTime
+  tutor                   Tutor                     @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id                String
+  resources               Resource[]
+  students StudentBoughtLessonPack[]
+}
+
+model StudentBoughtLessonPack {
+  id                Int        @id @default(autoincrement())
+  bought_date       DateTime
+  student           Student    @relation(fields: [student_id], references: [student_id])
+  lesson_pack       LessonPack @relation(fields: [lesson_pack_id], references: [id])
+  student_id String
+  lesson_pack_id      String
+}
+
+// create the model for flash cards
 model FlashcardDeck {
   id          Int         @id @default(autoincrement())
   name        String
   description String
-  student     Student?     @relation(fields: [student_id], references: [student_id])
-  student_id  String?      @unique
-  tutor       Tutor?       @relation(fields: [tutor_id], references: [tutor_id])
-  tutor_id    String?      @unique
+  student     Student?    @relation(fields: [student_id], references: [student_id])
+  student_id  String?     @unique
+  tutor       Tutor?      @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id    String?     @unique
   flashcards  Flashcard[] // Define the one-to-many relationship with Flashcards
 }
 
