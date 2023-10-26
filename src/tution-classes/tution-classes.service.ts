@@ -20,7 +20,16 @@ export class TutionClassesService {
       include: {
         subject: true,
         tutor: { include: { user: true } },
-        enrollment: true,
+      },
+    });
+  }
+
+  getMyTutionClasses(userId: string) {
+    return this.prisma.tutionClass.findMany({
+      where: {
+        tutor: {
+          user_id: userId,
+        },
       },
     });
   }
@@ -58,7 +67,6 @@ export class TutionClassesService {
   }
 
   async getClassesForTheStudentToEnrollIn(userId: string, tutorId: string) {
-    console.log(`received tutor id ${tutorId} and user id ${userId}`);
     // get all classes, but not the ones that the student is already enrolled in
     const tutionClasses = await this.prisma.tutionClass.findMany({
       where: {
@@ -78,7 +86,6 @@ export class TutionClassesService {
         ],
       },
     });
-    console.log(tutionClasses);
     return tutionClasses;
   }
 

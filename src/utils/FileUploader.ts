@@ -22,9 +22,7 @@ export class FileUploader {
       folder: string;
     },
   ) {
-    // console.log(file);
     const { originalName } = file;
-    console.log(`originalName: ${originalName}`);
 
     const randomBytes = uuid4();
     const fileName = `${options.folder}/${randomBytes}-${originalName}`;

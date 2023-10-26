@@ -196,9 +196,7 @@ export class UsersService {
     const totalNumberOfStudents = await this.prisma.student.count();
     // Generate username by padding '0' to the left of the total number of students to make it 8 digits
     const username = (totalNumberOfStudents + 1).toString().padStart(8, '0');
-    console.log(username);
     const barcode = await this.barcodeGenerator.generateBarcode(username);
-    console.log(barcode);
 
     const createdStudent = await this.prisma.user.create({
       data: {
@@ -221,13 +219,11 @@ export class UsersService {
       },
     });
 
-    console.log(createdStudent);
 
     const avatarURL = await this.fileUploader.uploadFile(avatar, {
       folder: 'tutors/avatars',
     });
 
-    console.log(avatarURL);
 
     const barcodeURL = await this.fileUploader.uploadFileWithFileObject(
       barcode,
@@ -236,7 +232,6 @@ export class UsersService {
       },
     );
 
-    console.log(barcodeURL);
 
     return this.prisma.user.update({
       where: {

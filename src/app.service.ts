@@ -25,7 +25,6 @@ export class AppService {
       folder: string;
     },
   ) {
-    console.log(file);
     const { originalname } = file;
 
     return await this.s3_upload(

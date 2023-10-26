@@ -150,7 +150,14 @@ model Resource {
   id            Int           @id @default(autoincrement())
   name          String
   url           String
+  thumbnail_url String?
   type          ResourceType
   LibraryFolder LibraryFolder @relation(fields: [folder_id], references: [id])
   folder_id     Int
+}
+
+model Example {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
 }

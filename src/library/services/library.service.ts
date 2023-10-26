@@ -33,7 +33,6 @@ export class LibraryService {
         tutor: true,
       },
     });
-    console.log(parentFolder);
     if (!parentFolder) {
       throw new ForbiddenException(`You don't have access to this folder`);
     }
@@ -78,12 +77,16 @@ export class LibraryService {
   }
 
   async getFolderChildrenOfFolder(userId: string, parentFolderId: number) {
+    const parent_folder_id = Number(parentFolderId);
+    if (isNaN(parent_folder_id)) {
+      throw new InternalServerErrorException('Invalid folder id');
+    }
     const parentFolder = await this.prisma.libraryFolder.findFirst({
       where: {
         tutor: {
           user_id: userId,
         },
-        id: Number(parentFolderId),
+        id: parent_folder_id,
       },
     });
     if (!parentFolder) {
