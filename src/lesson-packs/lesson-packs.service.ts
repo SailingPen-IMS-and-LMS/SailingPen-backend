@@ -68,17 +68,33 @@ export class LessonPacksService {
             throw new UnprocessableEntityException(`You're already own this lesson pack`)
         }
 
-        return this.prisma.studentBoughtLessonPack.create({
+        return this.prisma.student.update({
+            where: {
+                user_id: userId
+            },
             data: {
-                lesson_pack_id: lessonPackId,
-                student: {
-                    connect: {
-                        user_id: userId
+                lessonPacks: {
+                    create: {
+                        lesson_pack_id: lessonPackId,
+                        bought_date: new Date()
                     }
-                },
-                bought_date: new Date()
+                }
             }
         })
 
+    }
+
+    async getBoughtLessonPacks(userId: string) {
+      return this.prisma.lessonPack.findMany({
+          where: {
+             students: {
+                 some: {
+                     student: {
+                         user_id: userId
+                     }
+                 }
+             }
+          }
+      })
     }
 }

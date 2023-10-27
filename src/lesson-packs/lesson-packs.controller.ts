@@ -51,4 +51,17 @@ export class LessonPacksController {
         const userId = user.sub
         return this.lessonPacksService.buyLessonPack(userId,lesson_pack_id)
     }
+
+
+    @HttpCode(HttpStatus.OK)
+    @Roles('student')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Get('/bought')
+    fetchBoughtLessonPacks(
+        @Req() req: Request,
+    ) {
+        const user = req.user as AuthenticatedUser
+        const userId = user.sub
+        return this.lessonPacksService.getBoughtLessonPacks(userId)
+    }
 }
