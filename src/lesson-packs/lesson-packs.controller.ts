@@ -1,4 +1,4 @@
-import {Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Req, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, Req, UseGuards} from '@nestjs/common';
 import type {Request} from 'express'
 import {LessonPacksService} from "./lesson-packs.service";
 import {CreateLessonPackDto} from "./dto/create-lesson-pack.dto";
@@ -63,5 +63,27 @@ export class LessonPacksController {
         const user = req.user as AuthenticatedUser
         const userId = user.sub
         return this.lessonPacksService.getBoughtLessonPacks(userId)
+    }
+
+    @HttpCode(HttpStatus.OK)
+    @Roles('student')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Get('/available-to-buy')
+    fetchAvailableForBuyingLessonPacks(
+        @Req() req: Request,
+    ) {
+        const user = req.user as AuthenticatedUser
+        const userId = user.sub
+        return this.lessonPacksService.getAvailableToByLessonPacks(userId)
+    }
+
+    @HttpCode(HttpStatus.OK)
+    @Roles('student')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Get('/available-to-buy/:lesson_pack_id')
+    getMoreDetailsOfStoreLessonPack(
+        @Param('lesson_pack_id') lesson_pack_id: string
+    ) {
+        return this.lessonPacksService.getMoreDetailsOfLessonPack(lesson_pack_id)
     }
 }
