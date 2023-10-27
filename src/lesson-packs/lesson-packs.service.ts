@@ -122,6 +122,18 @@ export class LessonPacksService {
                         }
                     }
                 }
+            },
+            include: {
+                tutor: {
+                    select: {
+                        user: {
+                            select: {
+                                f_name: true,
+                                l_name: true
+                            }
+                        }
+                    }
+                }
             }
         });
     }
