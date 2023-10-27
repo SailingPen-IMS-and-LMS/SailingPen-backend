@@ -41,4 +41,16 @@ export class WeeklySessionsController {
         return this.weeklySessionsService.createWeeklySession(userId, tution_class_id, createWeeklySessionDto)
     }
 
+    @Roles('tutor')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Get('')
+    async getCurrentMonthWeeklySessions(
+        @Req() req: Request,
+        @Query('tution_class_id') tution_class_id: string,
+    ) {
+        const user = req.user as AuthenticatedUser
+        const userId = user.sub
+        return this.weeklySessionsService.getWeeklySessionsForCurrentMonth(userId, tution_class_id)
+    }
+
 }
