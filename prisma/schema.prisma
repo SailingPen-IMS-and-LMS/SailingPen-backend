@@ -169,8 +169,8 @@ model LessonPack {
   name        String
   description String
   price       Decimal
-  created_at  DateTime
-  updated_at  DateTime
+  created_at  DateTime                  @default(now())
+  updated_at  DateTime                  @default(now())
   tutor       Tutor                     @relation(fields: [tutor_id], references: [tutor_id])
   tutor_id    String
   resources   Resource[]
@@ -207,11 +207,11 @@ model Flashcard {
 }
 
 model WeeklySession {
-  id                  String      @id @default(dbgenerated("(concat('ws_', gen_random_uuid()))::TEXT"))
-  video_url           String
-  attachments         Resource[]
-  description  String
-  tution_class        TutionClass @relation(fields: [tution_class_id], references: [class_id])
-  date                DateTime
+  id              String      @id @default(dbgenerated("(concat('ws_', gen_random_uuid()))::TEXT"))
+  video_url       String
+  attachments     Resource[]
+  description     String
+  tution_class    TutionClass @relation(fields: [tution_class_id], references: [class_id])
+  date            DateTime
   tution_class_id String
 }
