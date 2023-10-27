@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import {QuizzesService} from "./quizzes.service"
 
 @Controller('quizzes')
@@ -7,9 +7,13 @@ export class QuizzesController {
     constructor(private readonly quizzesService: QuizzesService) {}
 
 
-    @Get("hello")
-    hello() {
-        return this.quizzesService.sayHello()
+    @Get("/")
+    getAllQuiz() {
+        return this.quizzesService.getAllQuiz()
+    }
+    @Post("/create")
+    createQuiz(@Body() quizData: any) {
+        return {data: quizData};
     }
 
 }
