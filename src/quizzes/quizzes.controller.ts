@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import {QuizzesService} from "./quizzes.service"
+import { Controller, Get ,Body, Post} from '@nestjs/common';
+import { QuizzesService } from './quizzes.service';
 
 @Controller('quizzes')
 export class QuizzesController {
+  constructor(private readonly quizzesService: QuizzesService) {}
 
-    constructor(private readonly quizzesService: QuizzesService) {}
+
 
 
     @Get("/")
@@ -16,4 +17,5 @@ export class QuizzesController {
         return {data: quizData};
     }
 
+ 
 }

@@ -18,6 +18,12 @@ enum UserType {
   student
 }
 
+enum ResourceType {
+  video
+  image
+  document
+}
+
 model User {
   user_id       String         @id @default(dbgenerated("(concat('user_', gen_random_uuid()))::TEXT"))
   nic           String         @unique
@@ -35,7 +41,7 @@ model User {
   student       Student?
   tutor         Tutor?
   admin         Administrator?
-  created_at     DateTime       @default(now())
+  created_at    DateTime       @default(now())
 }
 
 model Administrator {
@@ -45,25 +51,31 @@ model Administrator {
 }
 
 model Student {
-  student_id        String       @id @default(dbgenerated("(concat('student_', gen_random_uuid()))::TEXT"))
+  student_id        String                    @id @default(dbgenerated("(concat('student_', gen_random_uuid()))::TEXT"))
   school            String
   parent_contact_no String
   barcode           String?
-  user              User         @relation(fields: [user_id], references: [user_id])
-  user_id           String       @unique
+  user              User                      @relation(fields: [user_id], references: [user_id])
+  user_id           String                    @unique
   Enrollment        Enrollment[]
   Attendance        Attendance[]
+  FlashcardDeck     FlashcardDeck[]
+  lessonPacks       StudentBoughtLessonPack[]
 }
 
 model Tutor {
-  tutor_id        String        @id @default(dbgenerated("(concat('tutor_', gen_random_uuid()))::TEXT"))
+  tutor_id        String          @id @default(dbgenerated("(concat('tutor_', gen_random_uuid()))::TEXT"))
   qualifications  String[]
   payment_details Json
-  user            User          @relation(fields: [user_id], references: [user_id])
-  user_id         String        @unique
+  user            User            @relation(fields: [user_id], references: [user_id])
+  user_id         String          @unique
   tutionclasses   TutionClass[]
-  subject         Subject?      @relation(fields: [subject_id], references: [subject_id])
-  subject_id String?
+  subject         Subject?        @relation(fields: [subject_id], references: [subject_id])
+  subject_id      String?
+  library         Library?
+  libraryFolders  LibraryFolder[]
+  FlashcardDeck   FlashcardDeck[]
+  lessonPack      LessonPack[]
 }
 
 model SubjectStream {
@@ -83,18 +95,19 @@ model Subject {
 }
 
 model TutionClass {
-  class_id          String       @id @default(dbgenerated("(concat('class_', gen_random_uuid()))::TEXT"))
+  class_id          String          @id @default(dbgenerated("(concat('class_', gen_random_uuid()))::TEXT"))
   class_name        String
   class_description String
   schedule          Json?
   admission_fee     Decimal?
-  monthly_fee       Decimal?  
-  subject           Subject      @relation(fields: [subject_id], references: [subject_id])
+  monthly_fee       Decimal?
+  subject           Subject         @relation(fields: [subject_id], references: [subject_id])
   subject_id        String
-  tutor             Tutor        @relation(fields: [tutor_id], references: [tutor_id])
+  tutor             Tutor           @relation(fields: [tutor_id], references: [tutor_id])
   tutor_id          String
   enrollment        Enrollment[]
   attendance        Attendance[]
+  WeeklySession     WeeklySession[]
 }
 
 model Enrollment {
@@ -115,4 +128,90 @@ model Attendance {
   student_id      String
   tuition_class   TutionClass @relation(fields: [class_id], references: [class_id])
   class_id        String
+}
+
+model Library {
+  id             Int            @id @default(autoincrement())
+  tutor          Tutor          @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id       String         @unique
+  rootFolder     LibraryFolder? @relation(fields: [root_folder_id], references: [id])
+  root_folder_id Int?           @unique
+}
+
+model LibraryFolder {
+  id         Int             @id @default(autoincrement())
+  name       String
+  created_at DateTime        @default(now())
+  parent     LibraryFolder?  @relation("ChildFolders", fields: [parentId], references: [id])
+  parentId   Int?
+  children   LibraryFolder[] @relation("ChildFolders")
+  Library    Library?
+  tutor      Tutor           @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id   String
+  Resource   Resource[]
+}
+
+model Resource {
+  id              Int            @id @default(autoincrement())
+  name            String
+  url             String
+  thumbnail_url   String?
+  type            ResourceType
+  LibraryFolder   LibraryFolder  @relation(fields: [folder_id], references: [id])
+  folder_id       Int
+  Lesson_packs    LessonPack[]
+  WeeklySession   WeeklySession? @relation(fields: [weeklySessionId], references: [id])
+  weeklySessionId String?
+}
+
+model LessonPack {
+  id                       String                    @id @default(dbgenerated("(concat('lp_', gen_random_uuid()))::TEXT"))
+  name                     String
+  description              String
+  price                    Decimal
+  created_at               DateTime                  @default(now())
+  updated_at               DateTime                  @default(now())
+  tutor                    Tutor                     @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id                 String
+  resources                Resource[]
+  studentBoughtLessonPacks StudentBoughtLessonPack[]
+}
+
+model StudentBoughtLessonPack {
+  id             Int        @id @default(autoincrement())
+  bought_date    DateTime
+  student        Student    @relation(fields: [student_id], references: [student_id])
+  lesson_pack    LessonPack @relation(fields: [lesson_pack_id], references: [id])
+  student_id     String
+  lesson_pack_id String
+}
+
+// create the model for flash cards
+model FlashcardDeck {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String
+  student     Student?    @relation(fields: [student_id], references: [student_id])
+  student_id  String?     @unique
+  tutor       Tutor?      @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id    String?     @unique
+  flashcards  Flashcard[] // Define the one-to-many relationship with Flashcards
+}
+
+model Flashcard {
+  id              Int           @id @default(autoincrement())
+  question        String
+  answer          String
+  flashcardDeck   FlashcardDeck @relation(fields: [flashcardDeckId], references: [id])
+  flashcardDeckId Int
+}
+
+model WeeklySession {
+  id              String      @id @default(dbgenerated("(concat('ws_', gen_random_uuid()))::TEXT"))
+  video_url       String
+  attachments     Resource[]
+  description     String
+  tution_class    TutionClass @relation(fields: [tution_class_id], references: [class_id])
+  date            DateTime
+  tution_class_id String
 }

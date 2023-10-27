@@ -5,9 +5,9 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import * as argon2 from 'argon2';
-import { UsersService } from '../users/users.service';
-import { compare } from 'bcrypt';
+import { UsersService } from '../users/services/users.service';
+import { TutorsService } from '../users/services/tutors.service';
+import { compare, hash } from 'bcrypt';
 import { CreateStudentDto } from '../users/dto/create-student.dto';
 import { StudentLoginDto } from './dto/student-login.dto';
 import { CreateTutorDto } from '../users/dto/create-tutor.dto';
@@ -16,17 +16,16 @@ import { CreateAdminDto } from 'src/users/dto/create-admin-dto';
 
 @Injectable()
 export class AuthService {
-
   constructor(
     private readonly usersService: UsersService,
+    private readonly tutorsService: TutorsService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async registerStudent(createStudentDto: CreateStudentDto) {
-    const createdStudent = await this.usersService.createStudent(
-      createStudentDto,
-    );
+    const createdStudent =
+      await this.usersService.createStudent(createStudentDto);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     // const { password, ...otherDetails } = createdStudent;
@@ -42,7 +41,6 @@ export class AuthService {
   async loginStudent({ username, password }: StudentLoginDto) {
     const student = await this.usersService.getStudentByUsername(username);
     if (!student) {
-      console.log('Username not found');
       throw new BadRequestException(`Username doesn't exist`);
     }
     // const tokens = await this.getTokens(student.user_id, student.user.username);
@@ -58,13 +56,12 @@ export class AuthService {
     return this.usersService.update(userId, null);
   }
 
-  
   async logout(userId: string) {
     return this.usersService.update(userId, null);
   }
 
   async registerTutor(createTutorDto: CreateTutorDto) {
-    const createdTutor = await this.usersService.createTutor(createTutorDto);
+    const createdTutor = await this.tutorsService.createTutor(createTutorDto);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...otherDetails } = createdTutor;
@@ -73,15 +70,15 @@ export class AuthService {
   }
 
   async createAdmin(createAdminDto: CreateAdminDto) {
-    const createdAdmin = await this.usersService.createAdmin(createAdminDto)
-    const { password, ...otherDetails } = createdAdmin
-    return otherDetails
+    const createdAdmin = await this.usersService.createAdmin(createAdminDto);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...otherDetails } = createdAdmin;
+    return otherDetails;
   }
 
   async loginToDashboard({ username, password }: DashboardLoginDto) {
     const user = await this.usersService.getUserByUsername(username);
     if (!user) {
-      console.log('Username not found');
       throw new BadRequestException(`Username doesn't exist`);
     }
     // const tokens = await this.getTokens(student.user_id, student.user.username);
@@ -107,7 +104,7 @@ export class AuthService {
         },
         {
           secret: this.configService.get<string>('JWT_SECRET'),
-          expiresIn: '15m',
+          expiresIn: '7d',
         },
       ),
       this.jwtService.signAsync(
@@ -132,10 +129,7 @@ export class AuthService {
     const user = await this.usersService.getUserById(userId);
     if (!user || !user.refresh_token)
       throw new ForbiddenException('Access Denied');
-    const refreshTokenMatches = await argon2.verify(
-      user.refresh_token,
-      refreshToken,
-    );
+    const refreshTokenMatches = await compare(refreshToken, user.refresh_token);
     if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
     const tokens = await this.getTokens(user.user_id, user.username);
     await this.updateRefreshToken(user.user_id, tokens.refreshToken);
@@ -143,6 +137,6 @@ export class AuthService {
   }
 
   hashData(data: string) {
-    return argon2.hash(data);
+    return hash(data, 12);
   }
 }
