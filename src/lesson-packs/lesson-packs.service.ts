@@ -1,4 +1,4 @@
-import {Injectable, UnprocessableEntityException} from '@nestjs/common';
+import {Injectable, NotFoundException, UnprocessableEntityException} from '@nestjs/common';
 import {PrismaService} from "../prisma.service";
 import {CreateLessonPackDto} from "./dto/create-lesson-pack.dto";
 
@@ -136,5 +136,38 @@ export class LessonPacksService {
                 }
             }
         });
+    }
+
+    async getMoreDetailsOfLessonPack(lesson_pack_id: string) {
+        const lessonPackDetails = await this.prisma.lessonPack.findUnique({
+            where: {
+                id: lesson_pack_id
+            },
+            include: {
+                tutor: {
+                    select: {
+                        user: {
+                            select: {
+                                f_name: true,
+                                l_name: true
+                            }
+                        }
+                    }
+                },
+                resources: {
+                    select: {
+                        name: true,
+                        id: true,
+                        thumbnail_url: true,
+                        type: true
+                    }
+                }
+            }
+        })
+
+        if(!lessonPackDetails) {
+            throw new NotFoundException('Lesson pack id is invalid')
+        }
+        return lessonPackDetails
     }
 }
