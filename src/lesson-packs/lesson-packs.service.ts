@@ -87,14 +87,42 @@ export class LessonPacksService {
     async getBoughtLessonPacks(userId: string) {
       return this.prisma.lessonPack.findMany({
           where: {
-             students: {
+             studentBoughtLessonPacks: {
                  some: {
                      student: {
                          user_id: userId
-                     }
+                     },
                  }
              }
           }
       })
+    }
+
+    async getAvailableToByLessonPacks(userId: string) {
+        // logged in student's tutors' lesson packs that are not yet bought by this student
+        return this.prisma.lessonPack.findMany({
+            where: {
+                studentBoughtLessonPacks: {
+                    none: {
+                        student: {
+                            user_id: userId
+                        }
+                    }
+                },
+                tutor: {
+                    tutionclasses: {
+                        some: {
+                            enrollment: {
+                                some: {
+                                    student: {
+                                        user_id: userId
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 }

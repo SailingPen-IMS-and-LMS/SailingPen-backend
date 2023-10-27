@@ -165,16 +165,16 @@ model Resource {
 }
 
 model LessonPack {
-  id          String                    @id @default(dbgenerated("(concat('lp_', gen_random_uuid()))::TEXT"))
-  name        String
-  description String
-  price       Decimal
-  created_at  DateTime                  @default(now())
-  updated_at  DateTime                  @default(now())
-  tutor       Tutor                     @relation(fields: [tutor_id], references: [tutor_id])
-  tutor_id    String
-  resources   Resource[]
-  students    StudentBoughtLessonPack[]
+  id                       String                    @id @default(dbgenerated("(concat('lp_', gen_random_uuid()))::TEXT"))
+  name                     String
+  description              String
+  price                    Decimal
+  created_at               DateTime                  @default(now())
+  updated_at               DateTime                  @default(now())
+  tutor                    Tutor                     @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id                 String
+  resources                Resource[]
+  studentBoughtLessonPacks StudentBoughtLessonPack[]
 }
 
 model StudentBoughtLessonPack {
