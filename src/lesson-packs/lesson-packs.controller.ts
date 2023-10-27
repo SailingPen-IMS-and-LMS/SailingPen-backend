@@ -86,4 +86,18 @@ export class LessonPacksController {
     ) {
         return this.lessonPacksService.getMoreDetailsOfLessonPack(lesson_pack_id)
     }
+
+
+    @HttpCode(HttpStatus.OK)
+    @Roles('student')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Get('/available-to-buy/:lesson_pack_id/resources')
+    getResourcesOfLessonPacks(
+        @Req() req:Request,
+        @Param('lesson_pack_id') lesson_pack_id: string
+    ) {
+        const user = req.user as AuthenticatedUser
+        const userId = user.sub
+        return this.lessonPacksService.getResourcesOfLessonPackByStudent(userId, lesson_pack_id)
+    }
 }

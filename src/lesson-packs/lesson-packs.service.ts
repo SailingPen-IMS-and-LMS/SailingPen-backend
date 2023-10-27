@@ -170,4 +170,28 @@ export class LessonPacksService {
         }
         return lessonPackDetails
     }
+
+    async getResourcesOfLessonPackByStudent(userId: string, lesson_pack_id: string) {
+        const lessonPack = await this.prisma.lessonPack.findUnique({
+            where: {
+                id: lesson_pack_id,
+                studentBoughtLessonPacks: {
+                    some: {
+                        student: {
+                            user_id: userId
+                        }
+                    }
+                }
+            },
+            include: {
+                resources: true
+            }
+        })
+
+        if(!lessonPack) {
+            throw new UnprocessableEntityException("Lesson pack id is not valid or you don't have access")
+        }
+
+        return lessonPack.resources
+    }
 }
