@@ -196,7 +196,19 @@ export class LessonPacksService {
                 }
             },
             include: {
-                resources: true
+                resources: true,
+                tutor: {
+                    select: {
+                        user: {
+                            select: {
+                                f_name: true,
+                                l_name: true,
+                                avatar: true
+                            }
+                        },
+                    }
+                }
+
             }
         })
 
@@ -204,6 +216,6 @@ export class LessonPacksService {
             throw new UnprocessableEntityException("Lesson pack id is not valid or you don't have access")
         }
 
-        return lessonPack.resources
+        return lessonPack
     }
 }
