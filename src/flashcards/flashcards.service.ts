@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { 
   CreateFlashcardDeckDto ,
   CreateFlashcardDto } from './dto/create-flashcard.dto';
@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class FlashcardsService {
+ 
   constructor(private readonly prisma: PrismaService) {}
 
   getAllFlashcards() {
@@ -79,7 +80,9 @@ export class FlashcardsService {
   async getFlashcardDecksForUser(userId: string) {
     const flashcardDecks = await this.prisma.flashcardDeck.findMany({
       where: {
-        tutor_id: userId,
+        tutor: {
+          user_id: userId,
+        },
       },
     });
   
@@ -107,5 +110,32 @@ export class FlashcardsService {
     );
   
     return flashcards;
+  }
+
+  async getFlashcardsByDeckId(userId: string, flashcardDeckId: number) {
+   const flashcardsDeck = await this.prisma.flashcardDeck.findUnique({
+     where: {
+       id: flashcardDeckId,
+       tutor: {
+          user_id: userId,
+        },
+     },
+     //add everything in flashcardDeck as an array
+     include: {
+       flashcards: {
+        select: {
+          id: true,
+          question: true,
+          answer: true,
+        },
+       }
+     },
+   });
+
+   if (!flashcardsDeck) {
+     throw new ForbiddenException('Flashcard deck not found or you dont have access to it ');
+   }
+
+   return flashcardsDeck;
   }
 }

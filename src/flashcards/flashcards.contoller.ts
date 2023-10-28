@@ -47,7 +47,7 @@ export class FlashcardsController {
     );
   }
 
-  //to get all flashcard decks for a user
+  //to get all flashcard decks for a tutor
   @Get('/flashcard-decks')
   @Roles('tutor')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -57,7 +57,20 @@ export class FlashcardsController {
     return this.flashcardsService.getFlashcardDecksForUser(userId);
   }
 
-  //
+  //get flashcards of a deck by deckID
+  @Get('/flashcard-decks/:id')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async getFlashcardsByDeckId(
+      @Req() req: Request,
+      @Param('id') flashcardDeckId: number) 
+    {
+    const user = req.user as AuthenticatedUser;
+    const userId = user.sub;
+    return this.flashcardsService.getFlashcardsByDeckId(userId, +flashcardDeckId);
+  }
+
+  //add flashcards to a deck
   @Post(':id/flashcards')
   @Roles('tutor')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -67,7 +80,7 @@ export class FlashcardsController {
     @Body() createFlashcardDtos: CreateFlashcardDto[],
   ) {
     return this.flashcardsService.addFlashcardsToDeck(
-      flashcardDeckId,
+      +flashcardDeckId,
       createFlashcardDtos,
     );
   }
