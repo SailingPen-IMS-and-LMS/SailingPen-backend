@@ -317,6 +317,7 @@
     "@smithy/types" "^2.4.0"
     tslib "^2.5.0"
 
+
 "@aws-sdk/credential-provider-ini@3.438.0":
   version "3.438.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/credential-provider-ini/-/credential-provider-ini-3.438.0.tgz#845b09d2996e235d125a148aa8eca2f448d0d48e"
@@ -332,7 +333,6 @@
     "@smithy/shared-ini-file-loader" "^2.0.6"
     "@smithy/types" "^2.4.0"
     tslib "^2.5.0"
-
 "@aws-sdk/credential-provider-node@3.438.0":
   version "3.438.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/credential-provider-node/-/credential-provider-node-3.438.0.tgz#dfe72b8d580c70ed5b807741111be09dfe5aa5ae"
@@ -535,7 +535,6 @@
     "@smithy/signature-v4" "^2.0.0"
     "@smithy/types" "^2.4.0"
     tslib "^2.5.0"
-
 "@aws-sdk/token-providers@3.438.0":
   version "3.438.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/token-providers/-/token-providers-3.438.0.tgz#e91baa37c9c78cb5b21cae96a12e7e1705c931d3"
