@@ -76,6 +76,7 @@ model Tutor {
   libraryFolders  LibraryFolder[]
   FlashcardDeck   FlashcardDeck[]
   lessonPack      LessonPack[]
+  quizzes         Quiz[]    
 }
 
 model SubjectStream {
@@ -214,4 +215,30 @@ model WeeklySession {
   tution_class    TutionClass @relation(fields: [tution_class_id], references: [class_id])
   date            DateTime
   tution_class_id String
+}
+
+model Quiz {
+  quiz_id      String      @id @default(dbgenerated("(concat('quiz_', gen_random_uuid()))::TEXT"))
+  title        String
+  description  String
+  published    Boolean     @default(false)
+  questions    Question[]
+  tutor        Tutor       @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id     String
+}
+
+model Question {
+  question_id  String      @id @default(dbgenerated("(concat('question_', gen_random_uuid()))::TEXT"))
+  text         String
+  answers      Answer[]
+  quiz         Quiz       @relation(fields: [quiz_id], references: [quiz_id])
+  quiz_id      String
+}
+
+model Answer {
+  answer_id    String      @id @default(dbgenerated("(concat('answer_', gen_random_uuid()))::TEXT"))
+  text         String
+  is_correct   Boolean
+  question     Question    @relation(fields: [question_id], references: [question_id])
+  question_id  String
 }

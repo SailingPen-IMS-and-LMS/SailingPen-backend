@@ -64,7 +64,7 @@ export class LessonPacksService {
             }
         })
 
-        if(lessonPack) {
+        if (lessonPack) {
             throw new UnprocessableEntityException(`You're already own this lesson pack`)
         }
 
@@ -85,17 +85,29 @@ export class LessonPacksService {
     }
 
     async getBoughtLessonPacks(userId: string) {
-      return this.prisma.lessonPack.findMany({
-          where: {
-             studentBoughtLessonPacks: {
-                 some: {
-                     student: {
-                         user_id: userId
-                     },
-                 }
-             }
-          }
-      })
+        return this.prisma.lessonPack.findMany({
+            where: {
+                studentBoughtLessonPacks: {
+                    some: {
+                        student: {
+                            user_id: userId
+                        },
+                    }
+                }
+            },
+            include: {
+                tutor: {
+                    select: {
+                        user: {
+                            select: {
+                                f_name: true,
+                                l_name: true
+                            }
+                        }
+                    }
+                },
+            }
+        })
     }
 
     async getAvailableToByLessonPacks(userId: string) {
@@ -165,9 +177,45 @@ export class LessonPacksService {
             }
         })
 
-        if(!lessonPackDetails) {
+        if (!lessonPackDetails) {
             throw new NotFoundException('Lesson pack id is invalid')
         }
         return lessonPackDetails
+    }
+
+    async getResourcesOfLessonPackByStudent(userId: string, lesson_pack_id: string) {
+        const lessonPack = await this.prisma.lessonPack.findUnique({
+            where: {
+                id: lesson_pack_id,
+                studentBoughtLessonPacks: {
+                    some: {
+                        student: {
+                            user_id: userId
+                        }
+                    }
+                }
+            },
+            include: {
+                resources: true,
+                tutor: {
+                    select: {
+                        user: {
+                            select: {
+                                f_name: true,
+                                l_name: true,
+                                avatar: true
+                            }
+                        },
+                    }
+                }
+
+            }
+        })
+
+        if (!lessonPack) {
+            throw new UnprocessableEntityException("Lesson pack id is not valid or you don't have access")
+        }
+
+        return lessonPack
     }
 }
