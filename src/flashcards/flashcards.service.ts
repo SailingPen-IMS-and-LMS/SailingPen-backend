@@ -1,33 +1,33 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { 
-  CreateFlashcardDeckDto ,
-  CreateFlashcardDto } from './dto/create-flashcard.dto';
+import {
+  CreateFlashcardDeckDto,
+  CreateFlashcardDto,
+} from './dto/create-flashcard.dto';
 import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class FlashcardsService {
- 
   constructor(private readonly prisma: PrismaService) {}
 
-  getAllFlashcards() {
-    return [
-      {
-        id: 1,
-        title: 'Flashcard 1',
-        description: 'This is flashcard 1',
-      },
-      {
-        id: 2,
-        title: 'Flashcard 2',
-        description: 'This is flashcard 2',
-      },
-      {
-        id: 3,
-        title: 'Flashcard 3',
-        description: 'This is flashcard 3',
-      },
-    ];
-  }
+  // getAllFlashcards() {
+  //   return [
+  //     {
+  //       id: 1,
+  //       title: 'Flashcard 1',
+  //       description: 'This is flashcard 1',
+  //     },
+  //     {
+  //       id: 2,
+  //       title: 'Flashcard 2',
+  //       description: 'This is flashcard 2',
+  //     },
+  //     {
+  //       id: 3,
+  //       title: 'Flashcard 3',
+  //       description: 'This is flashcard 3',
+  //     },
+  //   ];
+  // }
 
   // createFlashcardDeck({
   //   name,
@@ -55,25 +55,25 @@ export class FlashcardsService {
     userId: string,
     createFlashcardDeckDto: CreateFlashcardDeckDto,
   ) {
-    const { name, description, tution_class_id  } = createFlashcardDeckDto;
-  
+    const { name, description, tution_class_id } = createFlashcardDeckDto;
+
     const flashcardDeck = await this.prisma.flashcardDeck.create({
       data: {
         name,
         description,
         tutor: {
           connect: {
-              user_id: userId
-          }
+            user_id: userId,
+          },
         },
         tutionClass: {
           connect: {
-            class_id: tution_class_id
-          }
-        }
+            class_id: tution_class_id,
+          },
+        },
       },
     });
-  
+
     return flashcardDeck;
   }
 
@@ -85,7 +85,7 @@ export class FlashcardsService {
         },
       },
     });
-  
+
     return flashcardDecks;
   }
 
@@ -108,34 +108,62 @@ export class FlashcardsService {
         }),
       ),
     );
-  
+
     return flashcards;
   }
 
   async getFlashcardsByDeckId(userId: string, flashcardDeckId: number) {
-   const flashcardsDeck = await this.prisma.flashcardDeck.findUnique({
-     where: {
-       id: flashcardDeckId,
-       tutor: {
+    const flashcardsDeck = await this.prisma.flashcardDeck.findUnique({
+      where: {
+        id: flashcardDeckId,
+        tutor: {
           user_id: userId,
         },
-     },
-     //add everything in flashcardDeck as an array
-     include: {
-       flashcards: {
-        select: {
-          id: true,
-          question: true,
-          answer: true,
+      },
+      //add everything in flashcardDeck as an array
+      include: {
+        flashcards: {
+          select: {
+            id: true,
+            question: true,
+            answer: true,
+          },
         },
-       }
-     },
-   });
+      },
+    });
 
-   if (!flashcardsDeck) {
-     throw new ForbiddenException('Flashcard deck not found or you dont have access to it ');
-   }
+    if (!flashcardsDeck) {
+      throw new ForbiddenException(
+        'Flashcard deck not found or you dont have access to it ',
+      );
+    }
 
-   return flashcardsDeck;
+    return flashcardsDeck;
+  }
+
+  //update flashcard deck
+  async updateFlashcardDeck(
+    flashcardDeckId: number,
+    updateFlashcardDeckDto: CreateFlashcardDeckDto,
+  ) {
+    const { 
+      name, description, tution_class_id } = updateFlashcardDeckDto;
+
+    const flashcardDeck = await this.prisma.flashcardDeck.update({
+      where: {
+        id: flashcardDeckId,
+      },
+      data: {
+        name,
+        description,
+        tutionClass: {
+          connect: {
+            class_id: tution_class_id,
+          },
+        },
+      },
+    });
+
+    return flashcardDeck;
   }
 }

@@ -8,11 +8,13 @@ import {
   HttpStatus,
   Req,
   Param,
+  Patch,
 } from '@nestjs/common';
 import { FlashcardsService } from './flashcards.service';
-import { 
-  CreateFlashcardDeckDto ,
-  CreateFlashcardDto } from './dto/create-flashcard.dto';
+import {
+  CreateFlashcardDeckDto,
+  CreateFlashcardDto,
+} from './dto/create-flashcard.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -23,12 +25,12 @@ import type { Request } from 'express';
 export class FlashcardsController {
   constructor(private readonly flashcardsService: FlashcardsService) {}
 
-  @Get('')
-  @Roles('tutor')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  getAllFlashcards() {
-    return this.flashcardsService.getAllFlashcards();
-  }
+  // @Get('')
+  // @Roles('tutor')
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // getAllFlashcards() {
+  //   return this.flashcardsService.getAllFlashcards();
+  // }
 
   //to create a flashcard deck
   @Post('')
@@ -47,6 +49,20 @@ export class FlashcardsController {
     );
   }
 
+  //update flashcard deck details
+  @Patch('/update-deck/:id')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  updateFlashcardDeck(
+    @Param('id') flashcardDeckId: number,
+    @Body() updateFlashcardDeckDto: CreateFlashcardDeckDto,
+  ) {
+    return this.flashcardsService.updateFlashcardDeck(
+      +flashcardDeckId,
+      updateFlashcardDeckDto,
+    );
+  }
+
   //to get all flashcard decks for a tutor
   @Get('/flashcard-decks')
   @Roles('tutor')
@@ -62,12 +78,15 @@ export class FlashcardsController {
   @Roles('tutor')
   @UseGuards(JwtAuthGuard, RolesGuard)
   async getFlashcardsByDeckId(
-      @Req() req: Request,
-      @Param('id') flashcardDeckId: number) 
-    {
+    @Req() req: Request,
+    @Param('id') flashcardDeckId: number,
+  ) {
     const user = req.user as AuthenticatedUser;
     const userId = user.sub;
-    return this.flashcardsService.getFlashcardsByDeckId(userId, +flashcardDeckId);
+    return this.flashcardsService.getFlashcardsByDeckId(
+      userId,
+      +flashcardDeckId,
+    );
   }
 
   //add flashcards to a deck
