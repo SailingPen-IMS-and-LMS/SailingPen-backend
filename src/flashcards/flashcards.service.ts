@@ -31,20 +31,20 @@ export class FlashcardsService {
     description,
     flashcards,
   }: CreateFlashcardDeckDto) {
-    const flashcardDeck = this.prisma.flashcardDeck.create({
-      data: {
-        name,
-        description,
-        flashcards: {
-          createMany: {
-            data: flashcards,
-          },
-        },
-      },
-      include: {
-        flashcards: true,
-      },
-    });
-    return flashcardDeck;
+    // const flashcardDeck = this.prisma.flashcardDeck.create({
+    //   data: {
+    //     name,
+    //     description,
+    //     flashcards: {
+    //       createMany: {
+    //         data: flashcards,
+    //       },
+    //     },
+    //   },
+    //   include: {
+    //     flashcards: true,
+    //   },
+    // });
+    // return flashcardDeck;
   }
 }

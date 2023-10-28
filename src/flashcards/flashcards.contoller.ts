@@ -36,9 +36,9 @@ export class FlashcardsController {
     @Req() req: Request,
     @Body() createFlashcardDeckDto: CreateFlashcardDeckDto,
   ) {
-    const user = req.user as AuthenticatedUser;
-    const userId = user.sub;
-    return this.flashcardsService.createFlashcardDeck(userId, createFlashcardDeckDto);
+    // const user = req.user as AuthenticatedUser;
+    // const userId = user.sub;
+    // return this.flashcardsService.createFlashcardDeck(userId, createFlashcardDeckDto);
   }
 
 
