@@ -59,7 +59,6 @@ model Student {
   user_id           String                    @unique
   Enrollment        Enrollment[]
   Attendance        Attendance[]
-  FlashcardDeck     FlashcardDeck[]
   lessonPacks       StudentBoughtLessonPack[]
 }
 
@@ -109,6 +108,7 @@ model TutionClass {
   enrollment        Enrollment[]
   attendance        Attendance[]
   WeeklySession     WeeklySession[]
+  flashcardDecks     FlashcardDeck[] // Define the one-to-many relationship with FlashcardDecks
 }
 
 model Enrollment {
@@ -192,11 +192,13 @@ model FlashcardDeck {
   id          Int         @id @default(autoincrement())
   name        String
   description String
-  student     Student?    @relation(fields: [student_id], references: [student_id])
-  student_id  String?     @unique
   tutor       Tutor?      @relation(fields: [tutor_id], references: [tutor_id])
   tutor_id    String?     @unique
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @default(now())
   flashcards  Flashcard[] // Define the one-to-many relationship with Flashcards
+  tutionClass TutionClass @relation(fields: [tution_class_id], references: [class_id])
+  tution_class_id String
 }
 
 model Flashcard {
