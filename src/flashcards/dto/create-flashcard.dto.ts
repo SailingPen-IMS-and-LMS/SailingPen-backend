@@ -13,6 +13,7 @@ export class CreateFlashcardDto {
 
 
 export class CreateFlashcardDeckDto {
+
   @IsString()
   @IsNotEmpty()
   readonly name: string;
@@ -21,9 +22,10 @@ export class CreateFlashcardDeckDto {
   @IsNotEmpty()
   readonly description: string;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateFlashcardDto)
-  readonly flashcards: CreateFlashcardDto[];
+  //add tution class id from scroldown
+  @IsString()
+  @IsNotEmpty()
+  readonly tution_class_id: string;
+
 }  
 

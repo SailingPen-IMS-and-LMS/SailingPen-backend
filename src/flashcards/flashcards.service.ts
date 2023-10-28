@@ -26,25 +26,53 @@ export class FlashcardsService {
     ];
   }
 
-  createFlashcardDeck({
-    name,
-    description,
-    flashcards,
-  }: CreateFlashcardDeckDto) {
-    const flashcardDeck = this.prisma.flashcardDeck.create({
+  // createFlashcardDeck({
+  //   name,
+  //   description,
+  //   flashcards,
+  // }: CreateFlashcardDeckDto) {
+  //   const flashcardDeck = this.prisma.flashcardDeck.create({
+  //     data: {
+  //       name,
+  //       description,
+  //       flashcards: {
+  //         createMany: {
+  //           data: flashcards,
+  //         },
+  //       },
+  //     },
+  //     include: {
+  //       flashcards: true,
+  //     },
+  //   });
+  //   return flashcardDeck;
+  // }
+
+  async createFlashcardDeck(
+    userId: string,
+    createFlashcardDeckDto: CreateFlashcardDeckDto,
+  ) {
+    const { name, description, tution_class_id  } = createFlashcardDeckDto;
+  
+    const flashcardDeck = await this.prisma.flashcardDeck.create({
       data: {
         name,
         description,
-        flashcards: {
-          createMany: {
-            data: flashcards,
-          },
+        tutor: {
+          connect: {
+              user_id: userId
+          }
         },
-      },
-      include: {
-        flashcards: true,
+        tutionClass: {
+          connect: {
+            class_id: tution_class_id
+          }
+        }
       },
     });
+  
     return flashcardDeck;
   }
+
+
 }
