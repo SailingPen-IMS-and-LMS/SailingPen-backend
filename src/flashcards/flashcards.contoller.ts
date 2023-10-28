@@ -7,9 +7,12 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  Param,
 } from '@nestjs/common';
 import { FlashcardsService } from './flashcards.service';
-import { CreateFlashcardDeckDto } from './dto/create-flashcard.dto';
+import { 
+  CreateFlashcardDeckDto ,
+  CreateFlashcardDto } from './dto/create-flashcard.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -44,13 +47,28 @@ export class FlashcardsController {
     );
   }
 
+  //to get all flashcard decks for a user
   @Get('/flashcard-decks')
   @Roles('tutor')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  async getFlashcardDecksForUser(
-    @Req() req: Request) {
+  async getFlashcardDecksForUser(@Req() req: Request) {
     const user = req.user as AuthenticatedUser;
     const userId = user.sub;
     return this.flashcardsService.getFlashcardDecksForUser(userId);
+  }
+
+  //
+  @Post(':id/flashcards')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.CREATED)
+  addFlashcardsToDeck(
+    @Param('id') flashcardDeckId: number,
+    @Body() createFlashcardDtos: CreateFlashcardDto[],
+  ) {
+    return this.flashcardsService.addFlashcardsToDeck(
+      flashcardDeckId,
+      createFlashcardDtos,
+    );
   }
 }

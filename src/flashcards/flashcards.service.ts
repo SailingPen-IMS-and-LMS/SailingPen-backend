@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFlashcardDeckDto } from './dto/create-flashcard.dto';
+import { 
+  CreateFlashcardDeckDto ,
+  CreateFlashcardDto } from './dto/create-flashcard.dto';
 import { PrismaService } from '../prisma.service';
 
 @Injectable()
@@ -82,5 +84,28 @@ export class FlashcardsService {
     });
   
     return flashcardDecks;
+  }
+
+  async addFlashcardsToDeck(
+    flashcardDeckId: number,
+    createFlashcardDtos: CreateFlashcardDto[],
+  ) {
+    const flashcards = await Promise.all(
+      createFlashcardDtos.map((createFlashcardDto) =>
+        this.prisma.flashcard.create({
+          data: {
+            question: createFlashcardDto.question,
+            answer: createFlashcardDto.answer,
+            flashcardDeck: {
+              connect: {
+                id: flashcardDeckId,
+              },
+            },
+          },
+        }),
+      ),
+    );
+  
+    return flashcards;
   }
 }
