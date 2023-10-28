@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import {
   CreateFlashcardDeckDto,
   CreateFlashcardDto,
@@ -146,8 +146,7 @@ export class FlashcardsService {
     flashcardDeckId: number,
     updateFlashcardDeckDto: CreateFlashcardDeckDto,
   ) {
-    const { 
-      name, description, tution_class_id } = updateFlashcardDeckDto;
+    const { name, description, tution_class_id } = updateFlashcardDeckDto;
 
     const flashcardDeck = await this.prisma.flashcardDeck.update({
       where: {
@@ -165,5 +164,42 @@ export class FlashcardsService {
     });
 
     return flashcardDeck;
+  }
+
+  //update flashcard content
+  async updateFlashcardContent(
+    flashcardDeckId: number,
+    flashcardId: number,
+    updatedContent: CreateFlashcardDto,
+  ) {
+    {
+      const flashcardDeck = await this.prisma.flashcardDeck.findUnique({
+        where: { id: flashcardDeckId },
+      });
+
+      if (!flashcardDeck) {
+        throw new NotFoundException(
+          `Flashcard Deck with ID ${flashcardDeckId} not found`,
+        );
+      }
+
+      const flashcard = await this.prisma.flashcard.findUnique({
+        where: { id: flashcardId },
+      });
+
+      if (!flashcard || flashcard.flashcardDeckId !== flashcardDeckId) {
+        throw new NotFoundException(
+          `Flashcard with ID ${flashcardId} not found in Flashcard Deck with ID ${flashcardDeckId}`,
+        );
+      }
+
+      return this.prisma.flashcard.update({
+        where: { id: flashcardId },
+        data: {
+          question: updatedContent.question,
+          answer: updatedContent.answer,
+        },
+      });
+    }
   }
 }

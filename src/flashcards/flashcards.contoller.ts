@@ -103,4 +103,21 @@ export class FlashcardsController {
       createFlashcardDtos,
     );
   }
+
+  //update flashcard in flashcard deck
+  @Patch('flashcard-deck/:flashcardDeckId/flashcard/:flashcardId/update')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  updateFlashcardContent(
+    @Param('flashcardDeckId') flashcardDeckId: number,
+    @Param('flashcardId') flashcardId: number,
+    @Body() updatedContent: CreateFlashcardDto,
+  ) {
+    return this.flashcardsService.updateFlashcardContent(
+      +flashcardDeckId,
+      +flashcardId,
+      updatedContent,
+    );
+  }
 }
