@@ -13,8 +13,8 @@ import { CreateFlashcardDeckDto } from './dto/create-flashcard.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import {AuthenticatedUser} from "../auth/types/jwt.types";
-import type {Request} from 'express'
+import { AuthenticatedUser } from '../auth/types/jwt.types';
+import type { Request } from 'express';
 
 @Controller('flashcards')
 export class FlashcardsController {
@@ -38,9 +38,19 @@ export class FlashcardsController {
   ) {
     const user = req.user as AuthenticatedUser;
     const userId = user.sub;
-    return this.flashcardsService.createFlashcardDeck(userId, createFlashcardDeckDto);
+    return this.flashcardsService.createFlashcardDeck(
+      userId,
+      createFlashcardDeckDto,
+    );
   }
 
-
-  
+  @Get('/flashcard-decks')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async getFlashcardDecksForUser(
+    @Req() req: Request) {
+    const user = req.user as AuthenticatedUser;
+    const userId = user.sub;
+    return this.flashcardsService.getFlashcardDecksForUser(userId);
+  }
 }

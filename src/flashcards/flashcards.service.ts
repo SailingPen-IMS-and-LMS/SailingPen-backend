@@ -74,5 +74,13 @@ export class FlashcardsService {
     return flashcardDeck;
   }
 
-
+  async getFlashcardDecksForUser(userId: string) {
+    const flashcardDecks = await this.prisma.flashcardDeck.findMany({
+      where: {
+        tutor_id: userId,
+      },
+    });
+  
+    return flashcardDecks;
+  }
 }
