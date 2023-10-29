@@ -7,14 +7,17 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  Param,
 } from '@nestjs/common';
 import { FlashcardsService } from './flashcards.service';
-import { CreateFlashcardDeckDto } from './dto/create-flashcard.dto';
+import { 
+  CreateFlashcardDeckDto ,
+  CreateFlashcardDto } from './dto/create-flashcard.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import {AuthenticatedUser} from "../auth/types/jwt.types";
-import type {Request} from 'express'
+import { AuthenticatedUser } from '../auth/types/jwt.types';
+import type { Request } from 'express';
 
 @Controller('flashcards')
 export class FlashcardsController {
@@ -36,11 +39,51 @@ export class FlashcardsController {
     @Req() req: Request,
     @Body() createFlashcardDeckDto: CreateFlashcardDeckDto,
   ) {
-    // const user = req.user as AuthenticatedUser;
-    // const userId = user.sub;
-    // return this.flashcardsService.createFlashcardDeck(userId, createFlashcardDeckDto);
+
+    const user = req.user as AuthenticatedUser;
+    const userId = user.sub;
+    return this.flashcardsService.createFlashcardDeck(
+      userId,
+      createFlashcardDeckDto,
+    );
+
   }
 
+  //to get all flashcard decks for a tutor
+  @Get('/flashcard-decks')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async getFlashcardDecksForUser(@Req() req: Request) {
+    const user = req.user as AuthenticatedUser;
+    const userId = user.sub;
+    return this.flashcardsService.getFlashcardDecksForUser(userId);
+  }
 
-  
+  //get flashcards of a deck by deckID
+  @Get('/flashcard-decks/:id')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async getFlashcardsByDeckId(
+      @Req() req: Request,
+      @Param('id') flashcardDeckId: number) 
+    {
+    const user = req.user as AuthenticatedUser;
+    const userId = user.sub;
+    return this.flashcardsService.getFlashcardsByDeckId(userId, +flashcardDeckId);
+  }
+
+  //add flashcards to a deck
+  @Post(':id/flashcards')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.CREATED)
+  addFlashcardsToDeck(
+    @Param('id') flashcardDeckId: number,
+    @Body() createFlashcardDtos: CreateFlashcardDto[],
+  ) {
+    return this.flashcardsService.addFlashcardsToDeck(
+      +flashcardDeckId,
+      createFlashcardDtos,
+    );
+  }
 }
