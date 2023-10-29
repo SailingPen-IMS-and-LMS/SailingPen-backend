@@ -75,7 +75,7 @@ model Tutor {
   libraryFolders  LibraryFolder[]
   FlashcardDeck   FlashcardDeck[]
   lessonPack      LessonPack[]
-  quizzes         Quiz[]    
+  quizzes         Quiz[]
 }
 
 model SubjectStream {
@@ -108,7 +108,7 @@ model TutionClass {
   enrollment        Enrollment[]
   attendance        Attendance[]
   WeeklySession     WeeklySession[]
-  flashcardDecks     FlashcardDeck[] // Define the one-to-many relationship with FlashcardDecks
+  flashcardDecks    FlashcardDeck[] // Define the one-to-many relationship with FlashcardDecks
 }
 
 model Enrollment {
@@ -189,15 +189,15 @@ model StudentBoughtLessonPack {
 
 // create the model for flash cards
 model FlashcardDeck {
-  id          Int         @id @default(autoincrement())
-  name        String
-  description String
-  tutor       Tutor?      @relation(fields: [tutor_id], references: [tutor_id])
-  tutor_id    String?     @unique
-  created_at  DateTime    @default(now())
-  updated_at  DateTime    @default(now())
-  flashcards  Flashcard[] // Define the one-to-many relationship with Flashcards
-  tutionClass TutionClass @relation(fields: [tution_class_id], references: [class_id])
+  id              Int         @id @default(autoincrement())
+  name            String
+  description     String
+  tutor           Tutor?      @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id        String?     @unique
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @default(now())
+  flashcards      Flashcard[] // Define the one-to-many relationship with Flashcards
+  tutionClass     TutionClass @relation(fields: [tution_class_id], references: [class_id])
   tution_class_id String
 }
 
@@ -210,37 +210,38 @@ model Flashcard {
 }
 
 model WeeklySession {
-  id              String      @id @default(dbgenerated("(concat('ws_', gen_random_uuid()))::TEXT"))
-  video_url       String
-  attachments     Resource[]
-  description     String
-  tution_class    TutionClass @relation(fields: [tution_class_id], references: [class_id])
-  date            DateTime
-  tution_class_id String
+  id                  String      @id @default(dbgenerated("(concat('ws_', gen_random_uuid()))::TEXT"))
+  video_url           String
+  video_thumbnail_url String
+  attachments         Resource[]
+  description         String
+  tution_class        TutionClass @relation(fields: [tution_class_id], references: [class_id])
+  date                DateTime
+  tution_class_id     String
 }
 
 model Quiz {
-  quiz_id      String      @id @default(dbgenerated("(concat('quiz_', gen_random_uuid()))::TEXT"))
-  title        String
-  description  String
-  published    Boolean     @default(false)
-  questions    Question[]
-  tutor        Tutor       @relation(fields: [tutor_id], references: [tutor_id])
-  tutor_id     String
+  quiz_id     String     @id @default(dbgenerated("(concat('quiz_', gen_random_uuid()))::TEXT"))
+  title       String
+  description String
+  published   Boolean    @default(false)
+  questions   Question[]
+  tutor       Tutor      @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id    String
 }
 
 model Question {
-  question_id  String      @id @default(dbgenerated("(concat('question_', gen_random_uuid()))::TEXT"))
-  text         String
-  answers      Answer[]
-  quiz         Quiz       @relation(fields: [quiz_id], references: [quiz_id])
-  quiz_id      String
+  question_id String   @id @default(dbgenerated("(concat('question_', gen_random_uuid()))::TEXT"))
+  text        String
+  answers     Answer[]
+  quiz        Quiz     @relation(fields: [quiz_id], references: [quiz_id])
+  quiz_id     String
 }
 
 model Answer {
-  answer_id    String      @id @default(dbgenerated("(concat('answer_', gen_random_uuid()))::TEXT"))
-  text         String
-  is_correct   Boolean
-  question     Question    @relation(fields: [question_id], references: [question_id])
-  question_id  String
+  answer_id   String   @id @default(dbgenerated("(concat('answer_', gen_random_uuid()))::TEXT"))
+  text        String
+  is_correct  Boolean
+  question    Question @relation(fields: [question_id], references: [question_id])
+  question_id String
 }
