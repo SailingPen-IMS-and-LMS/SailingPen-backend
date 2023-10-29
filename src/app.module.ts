@@ -26,7 +26,7 @@ import { LessonPacksModule } from './lesson-packs/lesson-packs.module';
     TutionClassesModule,
     QuizzesModule,
     LibraryModule,
-    FlashcardModule,
+    // FlashcardModule,
     LessonPacksModule,
   ],
   controllers: [AppController],
