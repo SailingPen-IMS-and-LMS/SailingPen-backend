@@ -210,13 +210,14 @@ model Flashcard {
 }
 
 model WeeklySession {
-  id              String      @id @default(dbgenerated("(concat('ws_', gen_random_uuid()))::TEXT"))
-  video_url       String
-  attachments     Resource[]
-  description     String
-  tution_class    TutionClass @relation(fields: [tution_class_id], references: [class_id])
-  date            DateTime
-  tution_class_id String
+  id                  String      @id @default(dbgenerated("(concat('ws_', gen_random_uuid()))::TEXT"))
+  video_url           String
+  video_thumbnail_url String
+  attachments         Resource[]
+  description         String
+  tution_class        TutionClass @relation(fields: [tution_class_id], references: [class_id])
+  date                DateTime
+  tution_class_id     String
 }
 
 model Quiz {

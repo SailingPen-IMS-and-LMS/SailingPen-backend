@@ -21,6 +21,25 @@ export class WeeklySessionsService {
         }
 
         const {date, attachments, description, video} = createWeeklySessionDto
+
+        const videoResource = await this.prisma.resource.findUnique({
+            where: {
+                id: video,
+                LibraryFolder: {
+                    tutor: {
+                        user_id: userId
+                    }
+                }
+            }
+        })
+
+        if(!videoResource) {
+            throw new ForbiddenException('This resource is not owned by the logged in user')
+        }
+
+        const preparedDate = new Date(date)
+
+
         const {schedule} = tutionClass
 
         console.log(schedule)
@@ -52,6 +71,26 @@ export class WeeklySessionsService {
                     gte: firstDayOfMonth,
                     lte: lastDayOfMonth
                 }
+            }
+            ,
+            // include: {
+            //     attachments: true,
+            // },
+            select: {
+                id: true,
+                date: true,
+                attachments: {
+                    select: {
+                        id: true,
+                        type: true,
+                        name: true,
+                        url: true,
+                        thumbnail_url: true,
+                    }
+                },
+                video_url: true,
+                description: true,
+                video_thumbnail_url: true
             }
         });
     }

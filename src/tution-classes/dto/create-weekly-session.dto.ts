@@ -1,10 +1,9 @@
-import {IsArray, IsDateString, IsNotEmpty, IsString} from "class-validator";
+import {IsArray, IsDateString, IsInt, IsNotEmpty, IsString} from "class-validator";
 
 export class CreateWeeklySessionDto {
 
-    @IsNotEmpty()
-    @IsString()
-    video:       string
+    @IsInt()
+    video:       number
 
     @IsNotEmpty({each: true})
     @IsString({each: true})

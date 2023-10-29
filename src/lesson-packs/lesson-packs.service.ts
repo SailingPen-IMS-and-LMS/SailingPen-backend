@@ -206,6 +206,11 @@ export class LessonPacksService {
                                 avatar: true
                             }
                         },
+                        subject: {
+                            select: {
+                                subject_name: true
+                            }
+                        }
                     }
                 }
 
