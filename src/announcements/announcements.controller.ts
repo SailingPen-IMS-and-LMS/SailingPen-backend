@@ -24,33 +24,33 @@ import type { Request } from 'express';
 export class AnnouncementsController {
   constructor(private readonly announcementsService: AnnouncementsService) {}
 
-//   @Post()
-//   create(@Body() createAnnouncementDto: CreateAnnouncementDto) {
-//     return this.announcementsService.create(createAnnouncementDto);
-//   }
+  @Post()
+  create(@Body() createAnnouncementDto: CreateAnnouncementDto) {
+    return this.announcementsService.create(createAnnouncementDto);
+  }
 
-//   @Get()
-//   findAll() {
-//     return this.announcementsService.findAll();
-//   }
+  @Get()
+  findAll() {
+    return this.announcementsService.findAll();
+  }
 
-//   @Get(':id')
-//   findOne(@Param('id') id: string) {
-//     return this.announcementsService.findOne(+id);
-//   }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.announcementsService.findOne(+id);
+  }
 
-//   @Put(':id')
-//   update(
-//     @Param('id') id: string,
-//     @Body() updateAnnouncementDto: UpdateAnnouncementDto,
-//   ) {
-//     return this.announcementsService.update(+id, updateAnnouncementDto);
-//   }
+  @Put(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateAnnouncementDto: UpdateAnnouncementDto,
+  ) {
+    return this.announcementsService.update(+id, updateAnnouncementDto);
+  }
 
-//   @Delete(':id')
-//   remove(@Param('id') id: string) {
-//     return this.announcementsService.remove(+id);
-//   }
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.announcementsService.remove(+id);
+  }
 
 
 }
