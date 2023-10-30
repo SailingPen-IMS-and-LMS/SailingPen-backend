@@ -26,7 +26,7 @@ export class AnnouncementsController {
   constructor(private readonly announcementsService: AnnouncementsService) {}
 
   // create announcements
-  @Post('create/:classId')
+  @Post('create')
   @Roles('tutor')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HttpCode(HttpStatus.CREATED)
