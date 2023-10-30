@@ -86,7 +86,9 @@ export class AnnouncementsController {
     @Req() req: Request) {
     const user = req.user as AuthenticatedUser;
     const userId = user.sub;
-    return this.announcementsService.getAnnouncementsByClassId(userId, +id);
+    return this.announcementsService.getAnnouncementsByClassId(
+      userId, 
+      id);
   }
 
   //get announcement details
@@ -99,7 +101,9 @@ export class AnnouncementsController {
     @Req() req: Request) {
     const user = req.user as AuthenticatedUser;
     const userId = user.sub;
-    return this.announcementsService.getAnnouncementDetails(userId, +id);
+    return this.announcementsService.getAnnouncementDetails(
+      userId, 
+      +id);
   }
 
   //   @Get()

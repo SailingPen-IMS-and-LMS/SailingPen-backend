@@ -100,9 +100,64 @@ export class AnnouncementsService {
     throw new Error('Method not implemented.');
   }
 
+
+  
   //to get announcements by class id
-  getAnnouncementsByClassId(userId: string, arg1: number) {
-    throw new Error('Method not implemented.');
+  async getAnnouncementsByClassId(
+    userId: string, 
+    classId: string,
+    ) 
+    {
+    const tutor = await this.prisma.tutor.findUnique({
+      where: { user_id: userId },
+    });
+
+    if (!tutor) {
+      throw new NotFoundException(`Tutor with User ID ${userId} not found`);
+    }
+
+    const announcements = await this.prisma.announcement.findMany({
+      where: {
+        AND: [
+          {
+            tutor: {
+              user_id: userId,
+            },
+          },
+          { 
+            tution_class_id: classId 
+          },
+        ],
+      },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        created_at: true,
+        tutionClass: {
+          select: {
+            class_name: true,
+          },
+        },
+      },
+    });
+
+    if (!announcements) {
+      throw new NotFoundException(
+        `No announcements found for Tutor with ID ${userId} and Class ID ${classId}`,
+      );
+    }
+
+    // Map the result to match the desired output
+    const result = announcements.map((announcement) => ({
+      id: announcement.id,
+      title: announcement.title,
+      content: announcement.content,
+      created_at: announcement.created_at,
+      // class_name: announcement.tutionClass.class_name,
+    }));
+
+    return result;
   }
 
   //to get announcements by tutor id
@@ -125,21 +180,22 @@ export class AnnouncementsService {
         },
       },
     });
-  
+
     if (!announcements) {
-      throw new NotFoundException(`No announcements found for Tutor with ID ${userId}`);
+      throw new NotFoundException(
+        `No announcements found for Tutor with ID ${userId}`,
+      );
     }
-  
+
     // Map the result to match the desired output
-    const results = announcements.map(announcement => ({
+    const results = announcements.map((announcement) => ({
       id: announcement.id,
       title: announcement.title,
       content: announcement.content,
       created_at: announcement.created_at,
       class_name: announcement.tutionClass.class_name,
-      })
-    );
-  
+    }));
+
     return results;
   }
 }
