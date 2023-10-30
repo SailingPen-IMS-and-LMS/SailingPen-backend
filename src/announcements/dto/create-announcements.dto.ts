@@ -30,7 +30,7 @@ export class UpdateAnnouncementDto {
   @IsString()
   content?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   tution_class_id: string;
 }

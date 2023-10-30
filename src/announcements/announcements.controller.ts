@@ -64,6 +64,44 @@ export class AnnouncementsController {
     );
   }
 
+  //get announncement by tutor id
+  @Get('tutor-announcements')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  getAnnouncementsByTutorId(
+    @Req() req: Request) {
+    const user = req.user as AuthenticatedUser;
+    const userId = user.sub;
+    return this.announcementsService.getAnnouncementsByTutorId(userId);
+  }
+
+  //get announncement by class id
+  @Get('class-announcements/:id')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  getAnnouncementsByClassId(
+    @Param('id') id: string,
+    @Req() req: Request) {
+    const user = req.user as AuthenticatedUser;
+    const userId = user.sub;
+    return this.announcementsService.getAnnouncementsByClassId(userId, +id);
+  }
+
+  //get announcement details
+  @Get(':id')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  getAnnouncementDetails(
+    @Param('id') id: number,
+    @Req() req: Request) {
+    const user = req.user as AuthenticatedUser;
+    const userId = user.sub;
+    return this.announcementsService.getAnnouncementDetails(userId, +id);
+  }
+
   //   @Get()
   //   findAll() {
   //     return this.announcementsService.findAll();
