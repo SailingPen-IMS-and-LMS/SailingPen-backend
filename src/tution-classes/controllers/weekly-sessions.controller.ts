@@ -4,6 +4,8 @@ import {
     Controller,
     ForbiddenException,
     Get,
+    HttpCode,
+    Param,
     Post,
     Query,
     Req,
@@ -51,6 +53,33 @@ export class WeeklySessionsController {
         const user = req.user as AuthenticatedUser
         const userId = user.sub
         return this.weeklySessionsService.getWeeklySessionsForCurrentMonth(userId, tution_class_id)
+    }
+
+    @Roles('student')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Get('/for-student')
+    async getCurrentMonthWeeklySessionsForStudent(
+        @Req() req: Request,
+        @Query('tution_class_id') tution_class_id: string,
+    ) {
+        const user = req.user as AuthenticatedUser
+        const userId = user.sub
+        return this.weeklySessionsService.getWeeklySessionsForCurrentMonthForStudent(userId, tution_class_id)
+    }
+
+
+
+    @HttpCode(200)
+    @Roles('tutor')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Get('/resources/:resource_id')
+    async getVideoDetailsByResourceId(
+        @Req() req: Request,
+        @Param('resource_id') resource_id: string,
+    ) {
+        const user = req.user as AuthenticatedUser
+        const userId = user.sub
+        return this.weeklySessionsService.getWeeklyVideoDetailsByResourceId(userId, +resource_id)
     }
 
 }
