@@ -13,6 +13,7 @@ import { QuizzesModule } from './quizzes/quizzes.module';
 import { LibraryModule } from './library/library.module';
 import { FlashcardModule } from './flashcards/flashcards.module';
 import { LessonPacksModule } from './lesson-packs/lesson-packs.module';
+import { AnnouncementsModule } from './announcements/announcements.module';
 
 @Module({
   imports: [
@@ -26,8 +27,9 @@ import { LessonPacksModule } from './lesson-packs/lesson-packs.module';
     TutionClassesModule,
     QuizzesModule,
     LibraryModule,
-    // FlashcardModule,
+    FlashcardModule,
     LessonPacksModule,
+    AnnouncementsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
