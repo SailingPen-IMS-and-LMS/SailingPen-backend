@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  Patch,
 } from '@nestjs/common';
 import { AnnouncementsService } from './announcements.service';
 // import { CreateAnnouncementDto } from './dto/create-announcements.dto';
@@ -19,7 +20,10 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AuthenticatedUser } from '../auth/types/jwt.types';
 import type { Request } from 'express';
-import { CreateAnnouncementDto } from './dto/create-announcements.dto';
+import { 
+  CreateAnnouncementDto,
+  UpdateAnnouncementDto,
+} from './dto/create-announcements.dto';
 
 @Controller('announcements')
 export class AnnouncementsController {
@@ -39,7 +43,25 @@ export class AnnouncementsController {
     return this.announcementsService.createAnnouncement(
       userId,
       createAnnouncementDto,
-      );
+    );
+  }
+
+  //update
+  @Patch('update/:id')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  updateAnnouncement(
+    @Param('id') id: number,
+    @Req() req: Request,
+    @Body() updateAnnouncementDto: UpdateAnnouncementDto,
+  ) {
+    const user = req.user as AuthenticatedUser;
+    const userId = user.sub;
+    return this.announcementsService.updateAnnouncement(
+      userId,
+      +id, 
+      updateAnnouncementDto,
+    );
   }
 
   //   @Get()
@@ -50,14 +72,6 @@ export class AnnouncementsController {
   //   @Get(':id')
   //   findOne(@Param('id') id: string) {
   //     return this.announcementsService.findOne(+id);
-  //   }
-
-  //   @Put(':id')
-  //   update(
-  //     @Param('id') id: string,
-  //     @Body() updateAnnouncementDto: UpdateAnnouncementDto,
-  //   ) {
-  //     return this.announcementsService.update(+id, updateAnnouncementDto);
   //   }
 
   //   @Delete(':id')
