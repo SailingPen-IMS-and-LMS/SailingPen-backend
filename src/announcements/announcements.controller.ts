@@ -9,6 +9,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { AnnouncementsService } from './announcements.service';
 // import { CreateAnnouncementDto } from './dto/create-announcements.dto';
@@ -18,39 +19,49 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AuthenticatedUser } from '../auth/types/jwt.types';
 import type { Request } from 'express';
-
+import { CreateAnnouncementDto } from './dto/create-announcements.dto';
 
 @Controller('announcements')
 export class AnnouncementsController {
   constructor(private readonly announcementsService: AnnouncementsService) {}
 
-//   @Post()
-//   create(@Body() createAnnouncementDto: CreateAnnouncementDto) {
-//     return this.announcementsService.create(createAnnouncementDto);
-//   }
+  // create announcements
+  @Post('create/:classId')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.CREATED)
+  createAnnouncement(
+    @Req() req: Request,
+    @Body() createAnnouncementDto: CreateAnnouncementDto,
+  ) {
+    const user = req.user as AuthenticatedUser;
+    const userId = user.sub;
+    return this.announcementsService.createAnnouncement(
+      userId,
+      createAnnouncementDto,
+      );
+  }
 
-//   @Get()
-//   findAll() {
-//     return this.announcementsService.findAll();
-//   }
+  //   @Get()
+  //   findAll() {
+  //     return this.announcementsService.findAll();
+  //   }
 
-//   @Get(':id')
-//   findOne(@Param('id') id: string) {
-//     return this.announcementsService.findOne(+id);
-//   }
+  //   @Get(':id')
+  //   findOne(@Param('id') id: string) {
+  //     return this.announcementsService.findOne(+id);
+  //   }
 
-//   @Put(':id')
-//   update(
-//     @Param('id') id: string,
-//     @Body() updateAnnouncementDto: UpdateAnnouncementDto,
-//   ) {
-//     return this.announcementsService.update(+id, updateAnnouncementDto);
-//   }
+  //   @Put(':id')
+  //   update(
+  //     @Param('id') id: string,
+  //     @Body() updateAnnouncementDto: UpdateAnnouncementDto,
+  //   ) {
+  //     return this.announcementsService.update(+id, updateAnnouncementDto);
+  //   }
 
-//   @Delete(':id')
-//   remove(@Param('id') id: string) {
-//     return this.announcementsService.remove(+id);
-//   }
-
-
+  //   @Delete(':id')
+  //   remove(@Param('id') id: string) {
+  //     return this.announcementsService.remove(+id);
+  //   }
 }
