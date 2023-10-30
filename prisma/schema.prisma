@@ -76,6 +76,7 @@ model Tutor {
   FlashcardDeck   FlashcardDeck[]
   lessonPack      LessonPack[]
   quizzes         Quiz[]
+  announcements   Announcement[]
 }
 
 model SubjectStream {
@@ -109,6 +110,7 @@ model TutionClass {
   attendance        Attendance[]
   WeeklySession     WeeklySession[]
   flashcardDecks    FlashcardDeck[] // Define the one-to-many relationship with FlashcardDecks
+  announcements     Announcement[]
 }
 
 model Enrollment {
@@ -244,4 +246,16 @@ model Answer {
   is_correct  Boolean
   question    Question @relation(fields: [question_id], references: [question_id])
   question_id String
+}
+
+model Announcement {
+  id              Int         @id @default(autoincrement())
+  title           String
+  content         String
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @default(now())
+  tutionClass     TutionClass @relation(fields: [tution_class_id], references: [class_id])
+  tution_class_id String
+  tutor           Tutor       @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id        String
 }
