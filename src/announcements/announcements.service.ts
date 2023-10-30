@@ -95,9 +95,45 @@ export class AnnouncementsService {
     return updatedAnnouncement;
   }
 
+
+
   //to get announcement details
-  getAnnouncementDetails(userId: string, arg1: number) {
-    throw new Error('Method not implemented.');
+  async getAnnouncementDetails(
+    userId: string, 
+    announcementId: number) 
+  {
+    const tutor = await this.prisma.tutor.findUnique({
+      where: { user_id: userId },
+    });
+
+    if (!tutor) {
+      throw new NotFoundException(`Tutor with User ID ${userId} not found`);
+    }
+
+    const announcement = await this.prisma.announcement.findUnique({
+      where: { id: announcementId },
+      include: {
+        tutionClass: true,
+      },
+    });
+
+    if (!announcement || announcement.tutor_id !== tutor.tutor_id) {
+      throw new NotFoundException(
+        `Announcement with ID ${announcementId} not found or not owned by Tutor with User ID ${userId}`,
+      );
+    }
+
+    //map the result to match the desired output
+    const result = {
+      id: announcement.id,
+      title: announcement.title,
+      content: announcement.content,
+      created_at: announcement.created_at,
+      updated_at: announcement.updated_at,
+      class_name: announcement.tutionClass.class_name,
+    };
+  
+    return result;
   }
 
 
@@ -105,11 +141,12 @@ export class AnnouncementsService {
   //to get announcements by class id
   async getAnnouncementsByClassId(
     userId: string, 
-    classId: string,
-    ) 
+    classId: string) 
     {
     const tutor = await this.prisma.tutor.findUnique({
-      where: { user_id: userId },
+      where: {
+        user_id: userId,
+      },
     });
 
     if (!tutor) {
@@ -124,8 +161,8 @@ export class AnnouncementsService {
               user_id: userId,
             },
           },
-          { 
-            tution_class_id: classId 
+          {
+            tution_class_id: classId,
           },
         ],
       },
@@ -160,6 +197,9 @@ export class AnnouncementsService {
     return result;
   }
 
+
+
+  
   //to get announcements by tutor id
   async getAnnouncementsByTutorId(userId: string) {
     const announcements = await this.prisma.announcement.findMany({
