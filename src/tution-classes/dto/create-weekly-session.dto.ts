@@ -3,12 +3,12 @@ import {IsArray, IsDateString, IsInt, IsNotEmpty, IsString} from "class-validato
 export class CreateWeeklySessionDto {
 
     @IsInt()
-    video:       number
+    video_resource_id:       number
 
     @IsNotEmpty({each: true})
-    @IsString({each: true})
+    @IsInt({each: true})
     @IsArray()
-    attachments:     string[]
+    attachment_ids:     number[]
 
 
     @IsNotEmpty()

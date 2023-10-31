@@ -111,6 +111,7 @@ model TutionClass {
   WeeklySession     WeeklySession[]
   flashcardDecks    FlashcardDeck[] // Define the one-to-many relationship with FlashcardDecks
   announcements     Announcement[]
+  quizzes           Quiz[]
 }
 
 model Enrollment {
@@ -223,13 +224,15 @@ model WeeklySession {
 }
 
 model Quiz {
-  quiz_id     String     @id @default(dbgenerated("(concat('quiz_', gen_random_uuid()))::TEXT"))
-  title       String
-  description String
-  published   Boolean    @default(false)
-  questions   Question[]
-  tutor       Tutor      @relation(fields: [tutor_id], references: [tutor_id])
-  tutor_id    String
+  quiz_id         String      @id @default(dbgenerated("(concat('quiz_', gen_random_uuid()))::TEXT"))
+  title           String
+  description     String
+  published       Boolean     @default(false)
+  questions       Question[]
+  tutor           Tutor       @relation(fields: [tutor_id], references: [tutor_id])
+  tutor_id        String
+  tution_class    TutionClass? @relation(fields: [tution_class_id], references: [class_id])
+  tution_class_id String?
 }
 
 model Question {

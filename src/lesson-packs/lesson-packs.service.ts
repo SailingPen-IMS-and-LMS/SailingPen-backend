@@ -4,6 +4,7 @@ import {CreateLessonPackDto} from "./dto/create-lesson-pack.dto";
 
 @Injectable()
 export class LessonPacksService {
+
     constructor(private prisma: PrismaService) {
     }
 
@@ -40,6 +41,43 @@ export class LessonPacksService {
                 }
             }
         })
+    }
+
+    async getLessonPackMoreDetails(userId: string, lesson_pack_id: string) {
+        const lessonPackDetails = await this.prisma.lessonPack.findUnique({
+            where: {
+                id: lesson_pack_id,
+                tutor: {
+                    user_id: userId
+                }
+            },
+            include: {
+                tutor: {
+                    select: {
+                        user: {
+                            select: {
+                                f_name: true,
+                                l_name: true
+                            }
+                        }
+                    }
+                },
+                resources: {
+                    select: {
+                        name: true,
+                        id: true,
+                        thumbnail_url: true,
+                        type: true,
+                        url: true
+                    }
+                }
+            }
+        })
+        if(!lessonPackDetails){
+            throw new NotFoundException('Lesson pack id is invalid')
+        }
+
+        return lessonPackDetails
     }
 
     async getLessonPacks(userId: string) {

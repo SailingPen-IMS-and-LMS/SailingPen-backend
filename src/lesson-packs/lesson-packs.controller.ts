@@ -25,6 +25,19 @@ export class LessonPacksController {
         return this.lessonPacksService.getLessonPacks(userId)
     }
 
+    @HttpCode(HttpStatus.OK)
+    @Roles('tutor')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Get('/:lesson_pack_id/more-details')
+    getLessonPackDetailsByTutor(
+        @Req() req: Request,
+        @Param('lesson_pack_id') lesson_pack_id: string
+    ) {
+        const user = req.user as AuthenticatedUser
+        const userId = user.sub
+        return this.lessonPacksService.getLessonPackMoreDetails(userId, lesson_pack_id)
+    }
+
     @HttpCode(HttpStatus.CREATED)
     @Roles('tutor')
     @UseGuards(JwtAuthGuard, RolesGuard)
