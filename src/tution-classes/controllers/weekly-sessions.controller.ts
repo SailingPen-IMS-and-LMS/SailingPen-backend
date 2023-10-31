@@ -5,6 +5,7 @@ import {
     ForbiddenException,
     Get,
     HttpCode,
+    HttpStatus,
     Param,
     Post,
     Query,
@@ -30,6 +31,7 @@ export class WeeklySessionsController {
     ) { }
 
 
+    @HttpCode(HttpStatus.CREATED)
     @Roles('tutor')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Post('')

@@ -6,7 +6,7 @@ export class CreateWeeklySessionDto {
     video_resource_id:       number
 
     @IsNotEmpty({each: true})
-    @IsString({each: true})
+    @IsInt({each: true})
     @IsArray()
     attachment_ids:     number[]
 

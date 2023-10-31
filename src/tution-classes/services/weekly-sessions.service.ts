@@ -1,16 +1,17 @@
-import {ForbiddenException, Injectable, UnprocessableEntityException,} from '@nestjs/common';
-import {PrismaService} from '../../prisma.service';
+import { ForbiddenException, Injectable, UnprocessableEntityException, } from '@nestjs/common';
+import { PrismaService } from '../../prisma.service';
 import { DateUtils } from "../../utils/DateUtils"
-import {CreateWeeklySessionDto} from "../dto/create-weekly-session.dto";
+import { CreateWeeklySessionDto } from "../dto/create-weekly-session.dto";
 import { DayName } from 'src/types/util-types';
 
 @Injectable()
 export class WeeklySessionsService {
 
 
-    constructor(private readonly prisma: PrismaService, private readonly dateUtils: DateUtils) {}
+    constructor(private readonly prisma: PrismaService, private readonly dateUtils: DateUtils) { }
 
     async createWeeklySession(userId: string, tution_class_id: string, createWeeklySessionDto: CreateWeeklySessionDto) {
+        console.log(`CLass id is ${tution_class_id}`)
         const tutionClass = await this.prisma.tutionClass.findUnique({
             where: {
                 class_id: tution_class_id,
@@ -20,11 +21,11 @@ export class WeeklySessionsService {
             }
         })
 
-        if(!tutionClass) {
+        if (!tutionClass) {
             throw new ForbiddenException(`You're not permitted to access this class`)
         }
 
-        const {date, attachment_ids, description, video_resource_id, } = createWeeklySessionDto
+        const { date, attachment_ids, description, video_resource_id, } = createWeeklySessionDto
 
         const videoResource = await this.prisma.resource.findUnique({
             where: {
@@ -37,21 +38,37 @@ export class WeeklySessionsService {
             }
         })
 
-        if(!videoResource) {
+        if (!videoResource) {
             throw new ForbiddenException('This resource is not owned by the logged in user')
         }
 
         const preparedDate = new Date(date)
-        const {schedule} = tutionClass
-        if(schedule) {
-            const day = (schedule as Record<string, unknown>).day as DayName;
-            const dates = this.dateUtils.getDaysInCurrentMonth(preparedDate, day)
-
-            console.log(dates)        
+        const { schedule } = tutionClass
+        if (!schedule) {
+            throw new UnprocessableEntityException(`Schedule not found for the class`)
         }
 
-        console.log(schedule)
-        return "Hello"
+        const day = (schedule as Record<string, unknown>).day as DayName;
+        const dates = this.dateUtils.getDaysInCurrentMonth(preparedDate, day)
+        if (!dates.includes(date)) {
+            throw new UnprocessableEntityException(`Date ${date} is not in the schedule of the class`)
+        }
+
+        const createdWeeklySession = await this.prisma.weeklySession.create({
+            data: {
+                date: preparedDate,
+                description: description,
+                video_url: videoResource.url,
+                video_thumbnail_url: videoResource.thumbnail_url || '',
+                tution_class_id: tution_class_id,
+                attachments: {
+                    connect: attachment_ids.map(id => ({ id }))
+                }
+            }
+        })
+
+        console.log(createWeeklySessionDto)
+        return createWeeklySessionDto
 
     }
 
@@ -65,7 +82,7 @@ export class WeeklySessionsService {
             }
         })
 
-        if(!tutionClass) {
+        if (!tutionClass) {
             throw new UnprocessableEntityException(`Tution class invalid or you don't have access`)
         }
 
@@ -117,7 +134,7 @@ export class WeeklySessionsService {
             }
         })
 
-        if(!tutionClass) {
+        if (!tutionClass) {
             throw new UnprocessableEntityException(`Tution class invalid or you don't have access`)
         }
 
@@ -161,7 +178,7 @@ export class WeeklySessionsService {
     }
 
     getWeeklyVideoDetailsByResourceId(userId: string, resourceId: number) {
-        const resource =  this.prisma.resource.findUnique({
+        const resource = this.prisma.resource.findUnique({
             where: {
                 id: resourceId,
                 LibraryFolder: {
@@ -170,16 +187,16 @@ export class WeeklySessionsService {
                     }
                 }
             },
-            
+
         })
-        if(!resource) {
+        if (!resource) {
             throw new UnprocessableEntityException(`Resource not found`)
         }
         return resource
     }
 
     getAttachmentsDetailsByResourceIds(userId: string, resourceIds: number[]) {
-        const resources =  this.prisma.resource.findMany({
+        const resources = this.prisma.resource.findMany({
             where: {
                 id: {
                     in: resourceIds
@@ -190,10 +207,10 @@ export class WeeklySessionsService {
                     }
                 }
             },
-            
+
         })
 
-        if(!resources) {
+        if (!resources) {
             throw new UnprocessableEntityException(`Resource not found`)
         }
 
