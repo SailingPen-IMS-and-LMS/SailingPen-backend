@@ -1,12 +1,13 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { CreateSubjectDto } from './dto/create-subject.dto';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Prisma, Subject } from '@prisma/client';
+import { CreateSubjectDto, UpdateSubjectDto } from './dto/create-subject.dto';
 import { CreateSubjectStreamDto } from './dto/create-subject-stream.dto';
 import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class SubjectsService {
   constructor(private readonly prisma: PrismaService) {}
+
 
   async getSubjects() {
     return this.prisma.subject.findMany({
@@ -16,6 +17,7 @@ export class SubjectsService {
     });
   }
 
+
   async getSubjectStreams() {
     return this.prisma.subjectStream.findMany({
       include: {
@@ -23,6 +25,7 @@ export class SubjectsService {
       },
     });
   }
+
 
   async createSubject({
     subject_description,
@@ -48,6 +51,7 @@ export class SubjectsService {
     }
   }
 
+
   async createSubjectStream({
     subject_stream_description,
     subject_stream_name,
@@ -64,5 +68,39 @@ export class SubjectsService {
       console.log(error);
       throw new InternalServerErrorException(error);
     }
+  }
+
+  
+  //update subject
+  async updateSubject(updateSubjectDto: UpdateSubjectDto, subjectId: string): Promise<Subject> {
+    const { subject_name, subject_description, subject_stream_ids } = updateSubjectDto;
+
+    const subject = await this.prisma.subject.findUnique({
+      where: { subject_id: subjectId },
+      include: { subject_stream: true },
+    });
+
+    if (!subject) {
+      throw new NotFoundException(`Subject with ID ${subjectId} not found`);
+    }
+
+    const updatedSubject = await this.prisma.subject.update({
+      where: { subject_id: subjectId },
+      data: {
+        subject_name: subject_name ?? subject.subject_name,
+        subject_description: subject_description ?? subject.subject_description,
+        subject_stream: subject_stream_ids
+          ? {
+              connect: subject_stream_ids.map((id) => (
+                { subject_stream_id: id }
+                )
+              ),
+            }
+          : undefined,
+      },
+      include: { subject_stream: true },
+    });
+
+    return updatedSubject;
   }
 }
