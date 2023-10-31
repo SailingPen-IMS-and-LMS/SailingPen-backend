@@ -17,7 +17,11 @@ export class TutionClassesService {
     return this.prisma.tutionClass.findMany({
       include: {
         subject: true,
-        tutor: { include: { user: true } },
+        tutor: { 
+          include: { 
+            user: true 
+          }
+         },
       },
     });
   }
@@ -35,14 +39,22 @@ export class TutionClassesService {
   async enrolledClassesOfStudent(userId: string) {
     const enrollments = await this.prisma.enrollment.findMany({
       where: {
-        student: { user_id: userId },
+        student: { 
+          user_id: userId 
+        },
       },
       include: {
         tuition_class: {
           include: {
             tutor: {
               include: {
-                user: { select: { f_name: true, l_name: true, avatar: true } },
+                user: { 
+                  select: { 
+                    f_name: true, 
+                    l_name: true, 
+                    avatar: true 
+                  } 
+                },
               },
             },
           },
@@ -115,7 +127,10 @@ export class TutionClassesService {
 
   async enrollStudent({ class_id, student_id }: EnrollToClassDto) {
     const existingEnrollment = await this.prisma.enrollment.findFirst({
-      where: { class_id, student_id },
+      where: { 
+        class_id, 
+        student_id 
+      },
     });
     if (existingEnrollment) {
       throw new UnprocessableEntityException(
