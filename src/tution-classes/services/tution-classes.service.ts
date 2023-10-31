@@ -1,11 +1,13 @@
 import {
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { CreateTutionClassDto } from '../dto/create-tution-class.dto';
 import { EnrollToClassDto } from '../dto/enroll-to-class.dto';
 import { PrismaService } from '../../prisma.service';
+import { Student } from '@prisma/client';
 
 @Injectable()
 export class TutionClassesService {
@@ -125,4 +127,41 @@ export class TutionClassesService {
     });
     return enrollment;
   }
+
+  //get all students enrolled in a class
+  async getStudentsEnrolledInClass(classId: string) {
+    const enrollments = await this.prisma.enrollment.findMany({
+      where: {
+        class_id: classId,
+      },
+      include: {
+        student: {
+          include: {
+            user: {
+             select: {
+              f_name: true,
+              l_name: true, 
+              avatar: true 
+              } 
+            },
+          },
+        },
+      },
+    });
+    const students = enrollments.map((enrollment) => {
+      const student = enrollment.student;
+      const { user, ...studentDetails } = student;
+      return {
+        ...studentDetails,
+        student_id: student.student_id,
+        student_f_name: user.f_name,
+        student_l_name: user.l_name,
+        student_avatar: user.avatar,
+        enrolled_date_time: enrollment.enrolled_date_time,
+
+      };
+    });
+    return students;
+  }
+
 }

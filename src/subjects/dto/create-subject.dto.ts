@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsArray } from 'class-validator';
+import { IsString, IsNotEmpty, IsArray, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsSubjectNameUnique, IsSubjectStreamIdValid } from '../validators';
 
@@ -20,4 +20,23 @@ export class CreateSubjectDto {
   @IsString({ each: true })
   @IsArray()
   subject_stream_ids: string[];
+}
+
+export class UpdateSubjectDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  // @IsNotEmpty()
+  @IsString()
+  subject_name?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  // @IsNotEmpty()
+  @IsString()
+  subject_description?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  // @IsString({ each: true })
+  subject_stream_ids?: string[];
 }

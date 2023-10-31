@@ -1,45 +1,69 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { CreateQuizDto, CreateQuestionDto } from './dto/create-quiz.dto';
+import { CreateQuizDto, CreateQuestionsDto } from './dto/create-quiz.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class QuizzesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async createQuiz(userId: string, quizData: CreateQuizDto) {
     // Check if the tutor ID is valid
 
-    const { description, title, published } = quizData;
+    const { description, title, published, tution_class_id } = quizData;
     // Create a new quiz in the database
     const createdQuiz = await this.prisma.quiz.create({
       data: {
         title,
         published,
         description,
-        tutor: { connect: { user_id: userId } },
+        tutor: {
+          connect: { user_id: userId },
+        },
+        tution_class: {
+          connect: {
+            class_id: tution_class_id
+          }
+        }
       },
     });
 
     return createdQuiz;
   }
 
-  async createQuestion(quizId: string, questionData: CreateQuestionDto) {
+  async createQuestion(userId: string, quizId: string, questionsData: CreateQuestionsDto) {
+
+
+    const { questions } = questionsData
+
     // Check if the quiz exists
     const quiz = await this.prisma.quiz.findUnique({
-      where: { quiz_id: quizId },
+      where: { quiz_id: quizId, },
     });
     if (!quiz) {
       throw new NotFoundException('Quiz not found');
     }
 
-    // Create a new question associated with the quiz
-    const createdQuestion = await this.prisma.question.create({
-      data: {
-        ...questionData,
-        quiz: { connect: { quiz_id: quizId } },
-      },
-    });
-    return createdQuestion;
+
+    for (const question of questions) {
+      const createdQuestion = await this.prisma.question.create({
+        data: {
+          text: question.text,
+          quiz_id: quizId,
+        }
+      })
+      await this.prisma.answer.createMany({
+        data: question.answers.map(a => {
+          return {
+            is_correct: a.is_correct,
+            text: a.text,
+            question_id: createdQuestion.question_id
+          } as Prisma.AnswerCreateManyInput
+        })
+      })
+    }
+
+    return true
   }
 
   async publishQuiz(quizId: string) {
