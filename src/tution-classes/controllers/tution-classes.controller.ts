@@ -4,6 +4,7 @@ import {
   Controller,
   ForbiddenException,
   Get,
+  Param,
   Post,
   Query,
   Req,
@@ -17,6 +18,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthenticatedUser } from 'src/auth/types/jwt.types';
+import { Student } from '@prisma/client';
 
 @Controller('tution-classes')
 export class TutionClassesController {
@@ -104,4 +106,17 @@ export class TutionClassesController {
     const userId = user.sub;
     return this.tutionClassesService.getMyTutionClasses(userId);
   }
+
+  //get all the students enrolled in a class
+  @Roles('tutor', 'admin')
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Get('/enrolled-students/:classId')
+  getStudentsEnrolledInClass(
+    @Req() req: Request,
+    @Param('classId') classId: string,
+  ) {
+    return this.tutionClassesService.getStudentsEnrolledInClass(classId);
+  }
+  
 }
