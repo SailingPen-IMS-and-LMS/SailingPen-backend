@@ -12,7 +12,7 @@ import {
 
 import { SubjectsService } from './subjects.service';
 import { CreateSubjectDto, UpdateSubjectDto } from './dto/create-subject.dto';
-import { CreateSubjectStreamDto } from './dto/create-subject-stream.dto';
+import { CreateSubjectStreamDto, UpdateSubjectStreamDto } from './dto/create-subject-stream.dto';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -49,6 +49,8 @@ export class SubjectsController {
     return this.subjectService.createSubjectStream(createSubjectStreamDto);
   }
 
+
+  //update subject
   @Patch('update-subject/:subject_id')
   @Roles('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -58,6 +60,21 @@ export class SubjectsController {
     @Param('subject_id') subject_id: string,
   ) {
     return this.subjectService.updateSubject(updateContent, subject_id);
+  }
+
+  //update subject stream
+  @Patch('update-subject-stream/:subject_stream_id')
+  @Roles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  updateSubjectStream(
+    @Body() updateContent: UpdateSubjectStreamDto,
+    @Param('subject_stream_id') subject_stream_id: string,
+  ) {
+    return this.subjectService.updateSubjectStream(
+      updateContent,
+      subject_stream_id,
+    );
   }
 
 }
