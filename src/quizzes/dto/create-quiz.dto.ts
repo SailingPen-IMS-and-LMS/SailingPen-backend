@@ -12,8 +12,7 @@ export class CreateQuizDto {
   @IsBoolean()
   published: boolean;
 
-  @IsString()
-  tutor: string; // or whatever type represents a tutor
+
 }
 
 export class CreateQuestionDto {
