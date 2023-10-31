@@ -1,4 +1,5 @@
-import { IsString, IsBoolean, IsNotEmpty } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsString, IsBoolean, IsNotEmpty, ValidateNested, ArrayMinSize, ArrayMaxSize, IsArray } from 'class-validator';
 
 export class CreateQuizDto {
   @IsNotEmpty()
@@ -13,15 +14,16 @@ export class CreateQuizDto {
   published: boolean;
 
 
-}
-
-export class CreateQuestionDto {
   @IsNotEmpty()
   @IsString()
-  text: string;
+  tution_class_id: string;
+
+
 }
 
-export class CreateAnswerDto {
+
+
+class QuestionAnswerDto {
   @IsNotEmpty()
   @IsString()
   text: string;
@@ -30,3 +32,25 @@ export class CreateAnswerDto {
   is_correct: boolean;
 }
 
+class QuestionDto {
+  @IsNotEmpty()
+  @IsString()
+  text: string;
+
+  @IsArray()
+  @ArrayMinSize(4)
+  @ArrayMaxSize(5) // Adjust the max size as needed
+  @IsString({ each: true })
+  @ValidateNested({ each: true })
+  @Type(() => QuestionAnswerDto)
+  answers: QuestionAnswerDto[];
+}
+
+export class CreateQuestionsDto {
+  @IsArray()
+  @ArrayMinSize(1) // Minimum size of the array
+  @ArrayMaxSize(10) // Maximum size of the array, adjust as needed
+  @ValidateNested({ each: true })
+  @Type(() => QuestionDto)
+  questions: QuestionDto[];
+}

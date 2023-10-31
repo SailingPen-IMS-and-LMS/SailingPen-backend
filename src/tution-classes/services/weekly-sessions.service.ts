@@ -1,11 +1,14 @@
 import {ForbiddenException, Injectable, UnprocessableEntityException,} from '@nestjs/common';
 import {PrismaService} from '../../prisma.service';
+import { DateUtils } from "../../utils/DateUtils"
 import {CreateWeeklySessionDto} from "../dto/create-weekly-session.dto";
+import { DayName } from 'src/types/util-types';
 
 @Injectable()
 export class WeeklySessionsService {
 
-    constructor(private readonly prisma: PrismaService) {}
+
+    constructor(private readonly prisma: PrismaService, private readonly dateUtils: DateUtils) {}
 
     async createWeeklySession(userId: string, tution_class_id: string, createWeeklySessionDto: CreateWeeklySessionDto) {
         const tutionClass = await this.prisma.tutionClass.findUnique({
@@ -21,11 +24,11 @@ export class WeeklySessionsService {
             throw new ForbiddenException(`You're not permitted to access this class`)
         }
 
-        const {date, attachments, description, video} = createWeeklySessionDto
+        const {date, attachment_ids, description, video_resource_id, } = createWeeklySessionDto
 
         const videoResource = await this.prisma.resource.findUnique({
             where: {
-                id: video,
+                id: video_resource_id,
                 LibraryFolder: {
                     tutor: {
                         user_id: userId
@@ -39,9 +42,13 @@ export class WeeklySessionsService {
         }
 
         const preparedDate = new Date(date)
-
-
         const {schedule} = tutionClass
+        if(schedule) {
+            const day = (schedule as Record<string, unknown>).day as DayName;
+            const dates = this.dateUtils.getDaysInCurrentMonth(preparedDate, day)
+
+            console.log(dates)        
+        }
 
         console.log(schedule)
         return "Hello"
@@ -169,5 +176,27 @@ export class WeeklySessionsService {
             throw new UnprocessableEntityException(`Resource not found`)
         }
         return resource
+    }
+
+    getAttachmentsDetailsByResourceIds(userId: string, resourceIds: number[]) {
+        const resources =  this.prisma.resource.findMany({
+            where: {
+                id: {
+                    in: resourceIds
+                },
+                LibraryFolder: {
+                    tutor: {
+                        user_id: userId
+                    }
+                }
+            },
+            
+        })
+
+        if(!resources) {
+            throw new UnprocessableEntityException(`Resource not found`)
+        }
+
+        return resources
     }
 }
