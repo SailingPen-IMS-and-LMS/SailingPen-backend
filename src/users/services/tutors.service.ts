@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma.service';
 import { FileUploader } from 'src/utils/FileUploader';
@@ -219,5 +221,123 @@ export class TutorsService {
     });
 
     return tutorList;
+  }
+
+  //update tutor profile
+  async updateTutor(updateTutorDto: any, tutorId: string) {
+    try {
+      const tutor = await this.prisma.tutor.findUnique({
+        where: { 
+          tutor_id: tutorId 
+        },
+        include: { 
+          user: true 
+        },
+      });
+  
+      if (!tutor) {
+        throw new NotFoundException(`Tutor with ID ${tutorId} not found`);
+      } 
+  
+      const {
+        username,
+        dob,
+        contact_no,
+        qualifications,
+        bank_name,
+        branch_name,
+        account_no,
+        address,
+        f_name,
+        l_name,
+        nic,
+        password,
+        email,
+        subject_id,
+      } = updateTutorDto;
+
+      //to check whether the email is already taken
+      const emailExists = await this.prisma.user.findUnique({
+        where: {
+          email: email,
+        },
+      });
+
+      if (emailExists && emailExists.user_id !== tutor.user.user_id) {
+        throw new ConflictException(`Email ${email} already exists`);
+      }
+
+      //to check whether the nic is already taken
+      const nicExists = await this.prisma.user.findUnique({
+        where: {
+          nic: nic,
+        },
+      });
+      
+      if (nicExists && nicExists.user_id !== tutor.user.user_id) {
+        throw new ConflictException(`NIC ${nic} already exists`);
+      }
+
+
+  
+      const generated_dob = new Date(dob);
+  
+      const hashedPassword = await hash(password, 12);
+  
+      const updatedTutor = await this.prisma.user.update({
+        where: {
+          user_id: tutor.user.user_id,
+        },
+        data: {
+          username: username !== tutor.user.username ? username : undefined,
+          dob: dob ? generated_dob : tutor.user.dob,
+          address: address ?? tutor.user.address,
+          nic: nic !== tutor.user.nic ? nic : undefined,
+          f_name: f_name ?? tutor.user.f_name,
+          l_name: l_name ?? tutor.user.l_name,
+          contact_no: contact_no !== tutor.user.contact_no ? contact_no : undefined,
+          email: email !== tutor.user.email ? email : undefined,
+          password: hashedPassword !== tutor.user.password ? hashedPassword : undefined,
+          tutor: {
+            update: {
+              qualifications: qualifications ?? tutor.qualifications,
+              payment_details: bank_name && branch_name && account_no ? { 
+                bank_name,
+                branch_name,
+                account_no,
+              } : tutor.payment_details ?? {},
+              subject: subject_id ? {
+                connect: {
+                  subject_id,
+                },
+              } : undefined,
+            },
+          },
+        },
+        select: {
+          user_id: true,
+          nic: true,
+          f_name: true,
+          l_name: true,
+          username: true,
+          email: true,
+          dob: true,
+          address: true,
+          contact_no: true,
+          tutor: {
+            select: {
+              tutor_id: true,
+              qualifications: true,
+              payment_details: true,
+              subject_id: true,
+            },
+          },
+        },
+      });
+  
+      return updatedTutor;
+    } catch (e) {
+      throw new InternalServerErrorException(e);
+    }
   }
 }
