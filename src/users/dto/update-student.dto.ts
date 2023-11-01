@@ -84,6 +84,87 @@ export class UpdateStudentDto {
   // @IsFile()
   // @MaxFileSize(1e7)
   // @HasMimeType(['image/jpeg', 'image/png'])
+  // @IsOptional()
+  // avatar?: MemoryStoredFile;
+}
+
+
+export class UpdateStudentByAdminDto {
+
+  @ApiProperty({ required: false })
   @IsOptional()
-  avatar?: MemoryStoredFile;
+//   @IsNotEmpty()
+  @IsString()
+  username?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+//   @IsNotEmpty()
+  @IsDateString()
+  dob?: string;
+
+  @ApiProperty({ required: false })
+//   @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  address?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+//   @IsNotEmpty()
+  @IsString()
+  // @IsNicUnique()
+  nic?: string;
+
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+//   @IsNotEmpty()
+  @IsString()
+  f_name?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+//   @IsNotEmpty()
+  @IsString()
+  l_name?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+//   @IsNotEmpty()
+  @IsString()
+  contact_no?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+//   @IsNotEmpty()
+  @IsString()
+  school?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+//   @IsNotEmpty()
+  @IsString()
+  parent_contact_no?: string;
+
+
+  @IsEmail()
+  // @IsEmailUnique()
+  @ApiProperty()
+  @IsOptional()
+  email?: string;
+
+  // @IsNotEmpty()
+  @IsString()
+  @ApiProperty()
+  @IsOptional()
+  password?: string;
+
+ 
+
+  // @IsFile()
+  // @MaxFileSize(1e7)
+  // @HasMimeType(['image/jpeg', 'image/png'])
+  // @IsOptional()
+  // avatar?: MemoryStoredFile;
 }

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -12,6 +13,7 @@ import { CreateAdminDto } from '../dto/create-admin-dto';
 import { StudentProfile } from 'src/types/users/students.types';
 import { AdminProfile } from 'src/types/users/admin.types';
 import { PrismaService } from '../../prisma.service';
+import { UpdateStudentByAdminDto } from '../dto/update-student.dto';
 
 @Injectable()
 export class UsersService {
@@ -64,9 +66,9 @@ export class UsersService {
       select: {
         tutor_id: true,
         subject: {
-          select: { 
-            subject_name: true
-           },
+          select: {
+            subject_name: true,
+          },
         },
         user: {
           select: {
@@ -198,7 +200,6 @@ export class UsersService {
       throw new InternalServerErrorException(error);
     }
   }
-
 
   //to create student
   async createStudent({
@@ -377,24 +378,21 @@ export class UsersService {
   }
 
   //update student's profile
-  async updateStudent(
-    updateStudentDto: any, 
-    studentId: string) {
+  async updateStudent(updateStudentDto: any, studentId: string) {
     try {
-
       // console.log(updateStudentDto);
-      // console.log(studentId); 
-      
+      // console.log(studentId);
+
       const student = await this.prisma.student.findUnique({
-        where: { 
-          student_id: studentId 
+        where: {
+          student_id: studentId,
         },
         include: { user: true },
       });
-  
+
       if (!student) {
         throw new NotFoundException(`Student with ID ${studentId} not found`);
-      } 
+      }
 
       const {
         username,
@@ -406,7 +404,6 @@ export class UsersService {
         f_name,
         l_name,
         nic,
-        avatar,
       } = updateStudentDto;
 
       const generated_dob = new Date(dob);
@@ -428,28 +425,8 @@ export class UsersService {
           nic: nic !== student.user.nic ? nic : undefined,
           f_name: f_name ?? student.user.f_name,
           l_name: l_name ?? student.user.l_name,
-          contact_no: contact_no !== student.user.contact_no ? contact_no : undefined,
-        },
-      });
-
-      if (avatar) {
-        const avatarURL = await this.fileUploader.uploadFile(avatar, {
-          folder: 'tutors/avatars',
-        });
-
-        await this.prisma.user.update({
-          where: {
-            user_id: student.user.user_id,
-          },
-          data: {
-            avatar: avatarURL,
-          },
-        });
-      }
-
-      const updatedStudentDetails = await this.prisma.user.findUnique({
-        where: {
-          user_id: student.user.user_id,
+          contact_no:
+            contact_no !== student.user.contact_no ? contact_no : undefined,
         },
         select: {
           nic: true,
@@ -471,43 +448,147 @@ export class UsersService {
         },
       });
 
-      return updatedStudentDetails;
+      // if (avatar) {
+      //   const avatarURL = await this.fileUploader.uploadFile(avatar, {
+      //     folder: 'students/avatars',
+      //   });
+
+      //   await this.prisma.user.update({
+      //     where: {
+      //       user_id: student.user.user_id,
+      //     },
+      //     data: {
+      //       avatar: avatarURL,
+      //     },
+      //   });
+      // }
+
+      return updatedStudent;
     } catch (e) {
       throw new InternalServerErrorException(e);
     }
   }
 
-  // async updateStudent(updateStudentDto: UpdateStudentDto, studentId: string): Promise<Student> {
-  //   const { dob, parent_contact_no, contact_no, school, address, f_name, l_name, nic } = updateStudentDto;
+  //update student's profile by admin
+  async updateStudentByAdmin(updateStudentDto: any, studentId: string) {
+    try {
+      // console.log(updateStudentDto);
+      // console.log(studentId);
 
-  //   const student = await this.prisma.student.findUnique({
-  //     where: { student_id: studentId },
-  //     include: { user: true },
-  //   });
+      const student = await this.prisma.student.findUnique({
+        where: {
+          student_id: studentId,
+        },
+        include: { user: true },
+      });
 
-  //   if (!student) {
-  //     throw new NotFoundException(`Student with ID ${studentId} not found`);
-  //   }
+      if (!student) {
+        throw new NotFoundException(`Student with ID ${studentId} not found`);
+      }
 
-  //   const updatedStudent = await this.prisma.user.update({
-  //     where: { user_id: student.user.user_id },
-  //     data: {
-  //       dob: dob ? new Date(dob) : student.user.dob,
-  //       address: address ?? student.user.address,
-  //       nic: nic ?? student.user.nic,
-  //       f_name: f_name ?? student.user.f_name,
-  //       l_name: l_name ?? student.user.l_name,
-  //       contact_no: contact_no ?? student.user.contact_no,
-  //       student: {
-  //         update: {
-  //           school: school ?? student.school,
-  //           parent_contact_no: parent_contact_no ?? student.parent_contact_no,
-  //         },
-  //       },
-  //     },
-  //     include: { student: true },
-  //   });
+      const {
+        username,
+        dob,
+        parent_contact_no,
+        contact_no,
+        school,
+        address,
+        f_name,
+        l_name,
+        nic,
+        email,
+        password,
+      } = updateStudentDto;
 
-  //   return updatedStudent;
-  // }
+      // Check if the nic already exists in the database
+      const existingNic = await this.prisma.user.findUnique({
+        where: { 
+          nic: nic 
+        },
+      });
+
+      if (existingNic && existingNic.user_id !== student.user.user_id) {
+        throw new ConflictException(`NIC ${nic} already exists`);
+      }
+
+      // Check if the email already exists in the database
+      const existingEmail = await this.prisma.user.findUnique({
+        where: {
+           email: email 
+          },
+      });
+
+      if (existingEmail && existingEmail.user_id !== student.user.user_id) {
+        throw new ConflictException(`Email ${email} already exists`);
+      }
+
+      const generated_dob = new Date(dob);
+
+      const hashedPassword = await hash(password, 12);
+
+      const updatedStudent = await this.prisma.user.update({
+        where: {
+          user_id: student.user.user_id,
+        },
+        data: {
+          student: {
+            update: {
+              school: school ?? student.school,
+              parent_contact_no: parent_contact_no ?? student.parent_contact_no,
+            },
+          },
+          username: username !== student.user.username ? username : undefined,
+          dob: dob ? generated_dob : student.user.dob,
+          address: address ?? student.user.address,
+          nic: nic !== student.user.nic ? nic : undefined,
+          f_name: f_name ?? student.user.f_name,
+          l_name: l_name ?? student.user.l_name,
+          contact_no:
+            contact_no !== student.user.contact_no ? contact_no : undefined,
+          email: email !== student.user.email ? email : undefined,
+          password:
+            hashedPassword !== student.user.password
+              ? hashedPassword
+              : undefined,
+        },
+        select: {
+          nic: true,
+          f_name: true,
+          l_name: true,
+          username: true,
+          email: true,
+          dob: true,
+          address: true,
+          contact_no: true,
+          avatar: true,
+          student: {
+            select: {
+              student_id: true,
+              school: true,
+              parent_contact_no: true,
+            },
+          },
+        },
+      });
+
+      // if (avatar) {
+      //   const avatarURL = await this.fileUploader.uploadFile(avatar, {
+      //     folder: 'tutors/avatars',
+      //   });
+
+      //   await this.prisma.user.update({
+      //     where: {
+      //       user_id: student.user.user_id,
+      //     },
+      //     data: {
+      //       avatar: avatarURL,
+      //     },
+      //   });
+      // }
+
+      return updatedStudent;
+    } catch (e) {
+      throw new InternalServerErrorException(e);
+    }
+  }
 }
