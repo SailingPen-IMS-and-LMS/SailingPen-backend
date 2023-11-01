@@ -2,11 +2,14 @@ import {Injectable, NotFoundException, UnprocessableEntityException} from '@nest
 import {PrismaService} from "../prisma.service";
 import {FileUploader} from "../utils/FileUploader"
 import {CreateLessonPackDto} from "./dto/create-lesson-pack.dto";
+import { ConfigService } from '@nestjs/config';
+import { ResourceType } from '@prisma/client';
+import axios from 'axios';
 
 @Injectable()
 export class LessonPacksService {
 
-    constructor(private readonly prisma: PrismaService, private readonly fileUploader: FileUploader) {
+    constructor(private readonly prisma: PrismaService, private readonly fileUploader: FileUploader, private readonly configService: ConfigService) {
     }
 
     async createLessonPack(userId: string, createLessonPackDto: CreateLessonPackDto) {
@@ -82,7 +85,8 @@ export class LessonPacksService {
                         id: true,
                         thumbnail_url: true,
                         type: true,
-                        url: true
+                        url: true,
+                        video_id: true
                     }
                 }
             }
@@ -90,6 +94,27 @@ export class LessonPacksService {
         if(!lessonPackDetails){
             throw new NotFoundException('Lesson pack id is invalid')
         }
+
+        const cloudflareAccountId = this.configService.get<string>(
+            'CLOUDFLARE_ACCOUNT_ID',
+          );
+          const cloudflareSecretKey = this.configService.get<string>(
+            'CLOUDFLARE_SECRET_KEY',
+          );
+      
+          for (const resource of lessonPackDetails.resources) {
+            if(resource.type === ResourceType.video) {
+              const signedTokenResult = await axios.post(`https://api.cloudflare.com/client/v4/accounts/${cloudflareAccountId}/stream/${resource.video_id}/token`, {}, {
+                headers: {
+                  'Authorization': `Bearer ${cloudflareSecretKey}`,
+                }
+              })
+              console.log(signedTokenResult.data)
+              const signedToken = signedTokenResult.data.result.token as string;
+              resource.url = resource.url.replace(resource.video_id || '', signedToken)
+            }
+            
+          }
 
         return lessonPackDetails
     }
@@ -223,7 +248,8 @@ export class LessonPacksService {
                         name: true,
                         id: true,
                         thumbnail_url: true,
-                        type: true
+                        type: true,
+                        video_id: true
                     }
                 }
             }
@@ -232,6 +258,8 @@ export class LessonPacksService {
         if (!lessonPackDetails) {
             throw new NotFoundException('Lesson pack id is invalid')
         }
+
+        
         return lessonPackDetails
     }
 
@@ -272,6 +300,27 @@ export class LessonPacksService {
         if (!lessonPack) {
             throw new UnprocessableEntityException("Lesson pack id is not valid or you don't have access")
         }
+
+        const cloudflareAccountId = this.configService.get<string>(
+            'CLOUDFLARE_ACCOUNT_ID',
+          );
+          const cloudflareSecretKey = this.configService.get<string>(
+            'CLOUDFLARE_SECRET_KEY',
+          );
+      
+          for (const resource of lessonPack.resources) {
+            if(resource.type === ResourceType.video) {
+              const signedTokenResult = await axios.post(`https://api.cloudflare.com/client/v4/accounts/${cloudflareAccountId}/stream/${resource.video_id}/token`, {}, {
+                headers: {
+                  'Authorization': `Bearer ${cloudflareSecretKey}`,
+                }
+              })
+              console.log(signedTokenResult.data)
+              const signedToken = signedTokenResult.data.result.token as string;
+              resource.url = resource.url.replace(resource.video_id || '', signedToken)
+            }
+            
+          }
 
         return lessonPack
     }

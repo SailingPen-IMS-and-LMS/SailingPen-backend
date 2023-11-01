@@ -12,6 +12,8 @@ import { CreateImageOrDocumentResourceDto } from '../dto/create-image-or-documen
 import { CreateVideoResourceDto } from '../dto/create-video.dto';
 import { CloudFlareStreamUploadResult } from '../../types/library/resource-types';
 import { PrismaService } from '../../prisma.service';
+import { File } from '@web-std/file';
+import {Readable} from 'stream'
 
 @Injectable()
 export class ResourcesService {
@@ -19,7 +21,7 @@ export class ResourcesService {
     private readonly fileUploader: FileUploader,
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   async createResource(
     userId: string,
@@ -91,7 +93,7 @@ export class ResourcesService {
   }
 
   async getResources(userId: string, folderId: number) {
-    return this.prisma.resource.findMany({
+    const resources = await this.prisma.resource.findMany({
       where: {
         folder_id: Number(folderId),
         LibraryFolder: {
@@ -101,6 +103,28 @@ export class ResourcesService {
         },
       },
     });
+
+    const cloudflareAccountId = this.configService.get<string>(
+      'CLOUDFLARE_ACCOUNT_ID',
+    );
+    const cloudflareSecretKey = this.configService.get<string>(
+      'CLOUDFLARE_SECRET_KEY',
+    );
+
+    // for (const resource of resources) {
+    //   if (resource.type === ResourceType.video) {
+    //     const signedTokenResult = await axios.post(`https://api.cloudflare.com/client/v4/accounts/${cloudflareAccountId}/stream/${resource.video_id}/token`, {}, {
+    //       headers: {
+    //         'Authorization': `Bearer ${cloudflareSecretKey}`,
+    //       }
+    //     })
+    //     const signedToken = signedTokenResult.data.result.token as string;
+    //     resource.url = resource.url.replace(resource.video_id || '', signedToken)
+    //   }
+
+    // }
+
+    return resources;
   }
 
   private getResourceType(mimeType: string): ResourceType | null {
@@ -156,11 +180,9 @@ export class ResourcesService {
     const cloudflareSecretKey = this.configService.get<string>(
       'CLOUDFLARE_SECRET_KEY',
     );
-    console.log(
-      `Account ID = ${cloudflareAccountId},API Key = ${cloudflareSecretKey}`,
-    );
 
     try {
+
       const response = await axios.post<CloudFlareStreamUploadResult>(
         `https://api.cloudflare.com/client/v4/accounts/${cloudflareAccountId}/stream`,
         formData,
@@ -175,9 +197,62 @@ export class ResourcesService {
         },
       );
 
-      console.log(response.data);
 
       const videoURL = response.data.result.preview.replace('watch', 'iframe');
+      const videoId = response.data.result.uid;
+
+      // require signed url to view video
+      await axios.post(
+        `https://api.cloudflare.com/client/v4/accounts/${cloudflareAccountId}/stream/${videoId}`,
+        {
+          uid: videoId,
+          requireSignedURLs: true,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${cloudflareSecretKey}`,
+          },
+        },
+      );
+
+
+      const signedTokenResult = await axios.post(`https://api.cloudflare.com/client/v4/accounts/${cloudflareAccountId}/stream/${videoId}/token`, {
+        exp: Math.floor(Date.now() / 1000) + (5*60)
+      }, {
+        headers: {
+          'Authorization': `Bearer ${cloudflareSecretKey}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      const signedToken = signedTokenResult.data.result.token as string;
+      const signedThumbnailURL = response.data.result.thumbnail.replace(videoId, signedToken)
+
+
+      // get the thumbnail from signed url and convert it to a File object
+      const thumbnailResponse = await axios.get(signedThumbnailURL, {
+        responseType: 'arraybuffer'
+      });
+
+      const imageBuffer = Buffer.from(thumbnailResponse.data as ArrayBuffer);
+      const imageStream = new Readable();
+      imageStream.push(imageBuffer);
+      imageStream.push(null);
+
+      const thumbnailBlob = new Blob([imageBuffer], { type: 'image/jpeg' });
+
+
+      // convert blob to file
+      const thumbnailFile = new File([thumbnailBlob], `${videoId}_thumbnail.jpg`, {
+        type: 'image/jpeg',
+      });
+
+
+
+      const thumbnailURL = await this.fileUploader.uploadFileWithFileObject(thumbnailFile, {
+        "folder": "videos/thumbnails"
+      })
+
+
 
       await this.prisma.resource.create({
         data: {
@@ -185,7 +260,8 @@ export class ResourcesService {
           url: videoURL,
           type: ResourceType.video,
           folder_id: folderId,
-          thumbnail_url: response.data.result.thumbnail,
+          thumbnail_url: thumbnailURL,
+          video_id: videoId,
         },
       });
 
@@ -197,7 +273,6 @@ export class ResourcesService {
       });
     } catch (e) {
       const error = e as AxiosError;
-      console.log(error.response?.data);
       throw new InternalServerErrorException({
         statusCode: 500,
         message: error.message,
