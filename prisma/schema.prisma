@@ -175,6 +175,7 @@ model LessonPack {
   price                    Decimal
   created_at               DateTime                  @default(now())
   updated_at               DateTime                  @default(now())
+  cover_image_url          String?                    
   tutor                    Tutor                     @relation(fields: [tutor_id], references: [tutor_id])
   tutor_id                 String
   resources                Resource[]

@@ -1,21 +1,22 @@
 import {Injectable, NotFoundException, UnprocessableEntityException} from '@nestjs/common';
 import {PrismaService} from "../prisma.service";
+import {FileUploader} from "../utils/FileUploader"
 import {CreateLessonPackDto} from "./dto/create-lesson-pack.dto";
 
 @Injectable()
 export class LessonPacksService {
 
-    constructor(private prisma: PrismaService) {
+    constructor(private readonly prisma: PrismaService, private readonly fileUploader: FileUploader) {
     }
 
     async createLessonPack(userId: string, createLessonPackDto: CreateLessonPackDto) {
-        const {name, description, resources, price} = createLessonPackDto
+        const {name, description, resources, price, cover_image} = createLessonPackDto
 
         // check if all resources are his
         for (const resource_id of resources) {
             const foundResource = await this.prisma.resource.findUnique({
                 where: {
-                    id: resource_id,
+                    id: +resource_id,
                     LibraryFolder: {
                         tutor: {
                             user_id: userId
@@ -29,15 +30,28 @@ export class LessonPacksService {
             }
         }
 
+
+        const coverImageUrl = await this.fileUploader.uploadFile(cover_image, {
+            folder: 'lesson-pack-covers',
+        })
+
         return this.prisma.lessonPack.create({
             data: {
                 name,
                 description,
                 price,
+                cover_image_url: coverImageUrl,
                 tutor: {
                     connect: {
                         user_id: userId
                     }
+                },
+                resources: {
+                    connect: resources.map(resource_id => {
+                        return {
+                            id: +resource_id
+                        };
+                    })
                 }
             }
         })

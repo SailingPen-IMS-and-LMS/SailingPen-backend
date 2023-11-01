@@ -1,4 +1,5 @@
-import {IsArray, IsInt, IsNotEmpty, IsNumber, IsPositive, IsString, MinLength} from "class-validator";
+import {IsArray, IsInt, IsNotEmpty, IsNumber, IsNumberString, IsPositive, IsString, MinLength} from "class-validator";
+import { HasMimeType, IsFile, MaxFileSize, MemoryStoredFile } from "nestjs-form-data";
 
 export class CreateLessonPackDto {
     @IsNotEmpty()
@@ -9,12 +10,16 @@ export class CreateLessonPackDto {
     @IsString()
     description : string
 
-    @IsPositive()
-    @IsNumber()
-    price       : number
+    @IsNumberString()
+    price       : string
 
     @IsArray()
-    @IsInt({each: true})
-    @IsNumber({}, {each: true})
-    resources  : number[]
+    @IsNumberString({}, {each: true})
+    resources  : string[]
+
+    @IsFile()
+    @MaxFileSize(1e7)
+    @HasMimeType(['image/jpeg', 'image/png'])
+    cover_image: MemoryStoredFile;
+
 }
