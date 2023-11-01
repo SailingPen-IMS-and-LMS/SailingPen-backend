@@ -11,7 +11,8 @@ import {
 
 @Injectable()
 export class AnnouncementsService {
-  constructor(private prisma: PrismaService) {}
+
+  constructor(private prisma: PrismaService) { }
 
   //to create announcements
   async createAnnouncement(
@@ -95,13 +96,23 @@ export class AnnouncementsService {
     return updatedAnnouncement;
   }
 
+  async deleteAnnouncement(userId: string, id: number) {
+    const result = await this.prisma.announcement.delete({
+      where: {
+        id, tutor: {
+          user_id: userId,
+        }
+      },
+    });
+
+    return result
+  }
 
 
   //to get announcement details
   async getAnnouncementDetails(
-    userId: string, 
-    announcementId: number) 
-  {
+    userId: string,
+    announcementId: number) {
     const tutor = await this.prisma.tutor.findUnique({
       where: { user_id: userId },
     });
@@ -132,17 +143,16 @@ export class AnnouncementsService {
       updated_at: announcement.updated_at,
       class_name: announcement.tutionClass.class_name,
     };
-  
+
     return result;
   }
 
 
-  
+
   //to get announcements by class id
   async getAnnouncementsByClassId(
-    userId: string, 
-    classId: string) 
-    {
+    userId: string,
+    classId: string) {
     // const tutor = await this.prisma.tutor.findUnique({
     //   where: {
     //     user_id: userId,
@@ -156,9 +166,12 @@ export class AnnouncementsService {
     const announcements = await this.prisma.announcement.findMany({
       where: {
 
-            tution_class_id: classId,
-  
+        tution_class_id: classId,
 
+
+      },
+      orderBy: {
+        created_at: `desc`
       },
       select: {
         id: true,
@@ -193,7 +206,7 @@ export class AnnouncementsService {
 
 
 
-  
+
   //to get announcements by tutor id
   async getAnnouncementsByTutorId(userId: string) {
     const announcements = await this.prisma.announcement.findMany({

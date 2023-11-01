@@ -47,6 +47,7 @@ export class AnnouncementsController {
   }
 
   //update
+  @HttpCode(HttpStatus.OK)
   @Patch('update/:id')
   @Roles('tutor')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -102,6 +103,21 @@ export class AnnouncementsController {
     const user = req.user as AuthenticatedUser;
     const userId = user.sub;
     return this.announcementsService.getAnnouncementDetails(
+      userId, 
+      +id);
+  }
+
+  // delete announcement
+  @Delete(':id')
+  @Roles('tutor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  deleteAnnouncement(
+    @Param('id') id: number,
+    @Req() req: Request) {
+    const user = req.user as AuthenticatedUser;
+    const userId = user.sub;
+    return this.announcementsService.deleteAnnouncement(
       userId, 
       +id);
   }
