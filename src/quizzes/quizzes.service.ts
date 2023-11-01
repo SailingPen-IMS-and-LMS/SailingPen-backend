@@ -7,29 +7,29 @@ import { Prisma } from '@prisma/client';
 export class QuizzesService {
   constructor(private readonly prisma: PrismaService) { }
 
-  // async createQuiz(userId: string, quizData: CreateQuizDto) {
-  //   // Check if the tutor ID is valid
+  async createQuiz(userId: string, quizData: CreateQuizDto) {
+    // Check if the tutor ID is valid
 
-  //   const { description, title, published, tution_class_id } = quizData;
-  //   // Create a new quiz in the database
-  //   const createdQuiz = await this.prisma.quiz.create({
-  //     data: {
-  //       title,
-  //       published,
-  //       description,
-  //       tutor: {
-  //         connect: { user_id: userId },
-  //       },
-  //       tution_class: {
-  //         connect: {
-  //           class_id: tution_class_id
-  //         }
-  //       }
-  //     },
-  //   });
+    const { description, title, published, tution_class_id } = quizData;
+    // Create a new quiz in the database
+    const createdQuiz = await this.prisma.quiz.create({
+      data: {
+        title,
+        published,
+        description,
+        tutor: {
+          connect: { user_id: userId },
+        },
+        tution_class: {
+          connect: {
+            class_id: tution_class_id
+          }
+        }
+      },
+    });
 
-  //   return createdQuiz;
-  // }
+    return createdQuiz;
+  }
 
   async createQuestion(userId: string, quizId: string, questionsData: CreateQuestionsDto) {
 
