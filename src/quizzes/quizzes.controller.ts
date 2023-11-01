@@ -25,13 +25,13 @@ export class QuizzesController {
 @Roles('tutor')
 @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('')
-  createQuiz( @Req() req:Request,@Body() quizData: CreateQuizDto) {
+  // createQuiz( @Req() req:Request,@Body() quizData: CreateQuizDto) {
 
 
-    const user= req.user as AuthenticatedUser;
-    const userId=user.sub;
-    return this.quizzesService.createQuiz(userId,quizData);
-  }
+  //   const user= req.user as AuthenticatedUser;
+  //   const userId=user.sub;
+  //   return this.quizzesService.createQuiz(userId,quizData);
+  // }
 
 
   @Roles('tutor')

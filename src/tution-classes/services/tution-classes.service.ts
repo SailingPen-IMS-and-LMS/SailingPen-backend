@@ -138,7 +138,10 @@ export class TutionClassesService {
       );
     }
     const enrollment = await this.prisma.enrollment.create({
-      data: { class_id, student_id },
+      data: { 
+        class_id, 
+        student_id 
+      },
     });
     return enrollment;
   }
@@ -175,7 +178,8 @@ export class TutionClassesService {
         enrolled_date_time: enrollment.enrolled_date_time,
 
       };
-    });
+    }
+    );
     return students;
   }
 
