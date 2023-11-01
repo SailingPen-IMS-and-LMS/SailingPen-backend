@@ -143,28 +143,22 @@ export class AnnouncementsService {
     userId: string, 
     classId: string) 
     {
-    const tutor = await this.prisma.tutor.findUnique({
-      where: {
-        user_id: userId,
-      },
-    });
+    // const tutor = await this.prisma.tutor.findUnique({
+    //   where: {
+    //     user_id: userId,
+    //   },
+    // });
 
-    if (!tutor) {
-      throw new NotFoundException(`Tutor with User ID ${userId} not found`);
-    }
+    // if (!tutor) {
+    //   throw new NotFoundException(`Tutor with User ID ${userId} not found`);
+    // }
 
     const announcements = await this.prisma.announcement.findMany({
       where: {
-        AND: [
-          {
-            tutor: {
-              user_id: userId,
-            },
-          },
-          {
+
             tution_class_id: classId,
-          },
-        ],
+  
+
       },
       select: {
         id: true,
