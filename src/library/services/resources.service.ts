@@ -111,18 +111,18 @@ export class ResourcesService {
       'CLOUDFLARE_SECRET_KEY',
     );
 
-    for (const resource of resources) {
-      if (resource.type === ResourceType.video) {
-        const signedTokenResult = await axios.post(`https://api.cloudflare.com/client/v4/accounts/${cloudflareAccountId}/stream/${resource.video_id}/token`, {}, {
-          headers: {
-            'Authorization': `Bearer ${cloudflareSecretKey}`,
-          }
-        })
-        const signedToken = signedTokenResult.data.result.token as string;
-        resource.url = resource.url.replace(resource.video_id || '', signedToken)
-      }
+    // for (const resource of resources) {
+    //   if (resource.type === ResourceType.video) {
+    //     const signedTokenResult = await axios.post(`https://api.cloudflare.com/client/v4/accounts/${cloudflareAccountId}/stream/${resource.video_id}/token`, {}, {
+    //       headers: {
+    //         'Authorization': `Bearer ${cloudflareSecretKey}`,
+    //       }
+    //     })
+    //     const signedToken = signedTokenResult.data.result.token as string;
+    //     resource.url = resource.url.replace(resource.video_id || '', signedToken)
+    //   }
 
-    }
+    // }
 
     return resources;
   }
