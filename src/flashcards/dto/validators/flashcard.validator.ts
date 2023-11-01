@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 import { PrismaClient } from '@prisma/client';
 
-export function IsFlashcardDeckNameUnique(
+function IsFlashcardDeckNameUnique(
   validationOptions?: ValidationOptions,
 ) {
   return function (object: any, propertyName: string) {
@@ -22,7 +22,7 @@ export function IsFlashcardDeckNameUnique(
 
 @ValidatorConstraint({ name: 'flashcard_deck_name', async: true })
 @Injectable()
-export class NotExistingFlashcardDeckNameValidation
+class NotExistingFlashcardDeckNameValidation
   implements ValidatorConstraintInterface
 {
   prisma: PrismaClient;
@@ -45,7 +45,7 @@ export class NotExistingFlashcardDeckNameValidation
   }
 }
 
-export function IsFlashcardQuestionUnique(
+function IsFlashcardQuestionUnique(
   validationOptions?: ValidationOptions,
 ) {
   return function (object: any, propertyName: string) {
@@ -60,7 +60,7 @@ export function IsFlashcardQuestionUnique(
 
 @ValidatorConstraint({ name: 'flashcard_question', async: true })
 @Injectable()
-export class NotExistingFlashcardQuestionValidation
+class NotExistingFlashcardQuestionValidation
   implements ValidatorConstraintInterface
 {
   prisma: PrismaClient;
@@ -83,7 +83,7 @@ export class NotExistingFlashcardQuestionValidation
   }
 }
 
-export function IsFlashcardDeckDescriptionNotEmpty(
+function IsFlashcardDeckDescriptionNotEmpty(
   validationOptions?: ValidationOptions,
 ) {
   return function (object: any, propertyName: string) {
@@ -98,7 +98,7 @@ export function IsFlashcardDeckDescriptionNotEmpty(
 
 @ValidatorConstraint({ name: 'flashcard_deck_description', async: false })
 @Injectable()
-export class FlashcardDeckDescriptionNotEmptyValidation
+class FlashcardDeckDescriptionNotEmptyValidation
   implements ValidatorConstraintInterface
 {
   validate(value: string): boolean {
@@ -112,7 +112,7 @@ export class FlashcardDeckDescriptionNotEmptyValidation
   }
 }
 
-export function IsFlashcardAnswerNotEmpty(
+function IsFlashcardAnswerNotEmpty(
   validationOptions?: ValidationOptions,
 ) {
   return function (object: any, propertyName: string) {
@@ -127,7 +127,7 @@ export function IsFlashcardAnswerNotEmpty(
 
 @ValidatorConstraint({ name: 'flashcard_answer', async: false })
 @Injectable()
-export class FlashcardAnswerNotEmptyValidation
+class FlashcardAnswerNotEmptyValidation
   implements ValidatorConstraintInterface
 {
   validate(value: string): boolean {
