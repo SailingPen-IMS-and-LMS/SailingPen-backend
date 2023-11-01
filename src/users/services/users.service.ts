@@ -13,7 +13,7 @@ import { CreateAdminDto } from '../dto/create-admin-dto';
 import { StudentProfile } from 'src/types/users/students.types';
 import { AdminProfile } from 'src/types/users/admin.types';
 import { PrismaService } from '../../prisma.service';
-import { UpdateStudentByAdminDto } from '../dto/update-student.dto';
+import { UpdateStudentAvatarDto, UpdateStudentByAdminDto } from '../dto/update-student.dto';
 
 @Injectable()
 export class UsersService {
@@ -405,7 +405,18 @@ export class UsersService {
         l_name,
         nic,
       } = updateStudentDto;
+      // Check if the nic already exists in the database
+      const existingNic = await this.prisma.user.findUnique({
+        where: {
+          nic: nic,
+        },
+      });
 
+      if (existingNic && existingNic.user_id !== student.user.user_id) {
+        throw new ConflictException(`NIC ${nic} already exists`);
+      }
+
+      
       const generated_dob = new Date(dob);
 
       const updatedStudent = await this.prisma.user.update({
@@ -448,20 +459,6 @@ export class UsersService {
         },
       });
 
-      // if (avatar) {
-      //   const avatarURL = await this.fileUploader.uploadFile(avatar, {
-      //     folder: 'students/avatars',
-      //   });
-
-      //   await this.prisma.user.update({
-      //     where: {
-      //       user_id: student.user.user_id,
-      //     },
-      //     data: {
-      //       avatar: avatarURL,
-      //     },
-      //   });
-      // }
 
       return updatedStudent;
     } catch (e) {
@@ -502,8 +499,8 @@ export class UsersService {
 
       // Check if the nic already exists in the database
       const existingNic = await this.prisma.user.findUnique({
-        where: { 
-          nic: nic 
+        where: {
+          nic: nic,
         },
       });
 
@@ -514,8 +511,8 @@ export class UsersService {
       // Check if the email already exists in the database
       const existingEmail = await this.prisma.user.findUnique({
         where: {
-           email: email 
-          },
+          email: email,
+        },
       });
 
       if (existingEmail && existingEmail.user_id !== student.user.user_id) {
@@ -571,24 +568,55 @@ export class UsersService {
         },
       });
 
-      // if (avatar) {
-      //   const avatarURL = await this.fileUploader.uploadFile(avatar, {
-      //     folder: 'tutors/avatars',
-      //   });
-
-      //   await this.prisma.user.update({
-      //     where: {
-      //       user_id: student.user.user_id,
-      //     },
-      //     data: {
-      //       avatar: avatarURL,
-      //     },
-      //   });
-      // }
+    
 
       return updatedStudent;
     } catch (e) {
       throw new InternalServerErrorException(e);
     }
   }
+
+  ///update student's avatar
+  async updateStudentAvatar(
+    updateStudentAvatarDto: UpdateStudentAvatarDto, 
+    studentId: string) {
+    const student = await this.prisma.student.findUnique({
+      where: { 
+        student_id: studentId 
+      },
+      include: { 
+        user: true 
+      },
+    });
+  
+    if (!student) {
+      throw new NotFoundException(`Student with ID ${studentId} not found`);
+    } 
+  
+    const { avatar } = updateStudentAvatarDto;
+  
+    if (avatar) {
+      const avatarURL = await this.fileUploader.uploadFile(avatar, {
+        folder: 'students/avatars',
+      });
+  
+      const updatedStudent = await this.prisma.user.update({
+        where: {
+          user_id: student.user.user_id,
+        },
+        data: {
+          avatar: avatarURL,
+        },
+        select: {
+          user_id: true,
+          avatar: true,
+        },
+      });
+  
+      return updatedStudent;
+    }
+  
+    throw new BadRequestException('No avatar file provided');
+  }
+
 }

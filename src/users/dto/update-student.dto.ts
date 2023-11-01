@@ -162,9 +162,13 @@ export class UpdateStudentByAdminDto {
 
  
 
-  // @IsFile()
-  // @MaxFileSize(1e7)
-  // @HasMimeType(['image/jpeg', 'image/png'])
-  // @IsOptional()
-  // avatar?: MemoryStoredFile;
+
+}
+
+export class UpdateStudentAvatarDto {
+  @IsFile()
+  @MaxFileSize(1e7)
+  @HasMimeType(['image/jpeg', 'image/png'])
+  @IsOptional()
+  avatar?: MemoryStoredFile;
 }

@@ -15,7 +15,7 @@ import { StudentProfile } from 'src/types/users/students.types';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AdminProfile } from 'src/types/users/admin.types';
-import { UpdateStudentByAdminDto, UpdateStudentDto } from '../dto/update-student.dto';
+import { UpdateStudentAvatarDto, UpdateStudentByAdminDto, UpdateStudentDto } from '../dto/update-student.dto';
 import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller('users')
@@ -98,11 +98,48 @@ export class UsersController {
   }
 
   //update student's avatar by student
-  // @Roles('student')
-  // @UseGuards(RolesGuard)
-  // @UseGuards(JwtAuthGuard)
-  // @Patch('update-student-avatar')
-  // @FormDataRequest()
+  @Roles('student')
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Patch('update-student-avatar')
+  @FormDataRequest()
+  async updateStudentAvatarSelf(
+    @Body() updateStudentAvatarDto: UpdateStudentAvatarDto,
+    @Req() req: Request,
+  ) {
+    const user = req.user as AuthenticatedUser;
+    const studentId = user.sub;
+    const updatedStudent = await this.usersService.updateStudentAvatar(
+      updateStudentAvatarDto,
+      studentId,
+    );
+
+    return {
+      message: 'Student updated successfully',
+      data: updatedStudent,
+    };
+  }
+
+  //update student's avatar by admin
+  @Roles('admin')
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Patch('update-student-avatar/:id')
+  @FormDataRequest()
+  async updateStudentAvatar(
+    @Body() updateStudentAvatarDto: UpdateStudentAvatarDto,
+    @Param('id') studentId: string,
+  ) {
+    const updatedStudent = await this.usersService.updateStudentAvatar(
+      updateStudentAvatarDto,
+      studentId,
+    );
+
+    return {
+      message: 'Student updated successfully',
+      data: updatedStudent,
+    };
+  }
 
 
 }
