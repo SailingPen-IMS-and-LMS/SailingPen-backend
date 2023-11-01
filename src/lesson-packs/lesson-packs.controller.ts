@@ -6,6 +6,7 @@ import {Roles} from "../auth/decorators/roles.decorator";
 import {JwtAuthGuard} from "../common/guards/jwt-auth.guard";
 import {RolesGuard} from "../common/guards/roles.guard";
 import {AuthenticatedUser} from "../auth/types/jwt.types";
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller('lesson-packs')
 export class LessonPacksController {
@@ -42,10 +43,12 @@ export class LessonPacksController {
     @Roles('tutor')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Post('')
+    @FormDataRequest()
     createLessonPack(
         @Req() req: Request,
         @Body() createLessonPackDto: CreateLessonPackDto
     ) {
+        console.log(createLessonPackDto)
         const user = req.user as AuthenticatedUser
         const userId = user.sub
         return this.lessonPacksService.createLessonPack(userId, createLessonPackDto)
