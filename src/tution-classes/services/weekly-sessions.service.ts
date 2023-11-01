@@ -3,12 +3,15 @@ import { PrismaService } from '../../prisma.service';
 import { DateUtils } from "../../utils/DateUtils"
 import { CreateWeeklySessionDto } from "../dto/create-weekly-session.dto";
 import { DayName } from 'src/types/util-types';
+import { ConfigService } from '@nestjs/config';
+import { ResourceType } from '@prisma/client';
+import axios from 'axios';
 
 @Injectable()
 export class WeeklySessionsService {
 
 
-    constructor(private readonly prisma: PrismaService, private readonly dateUtils: DateUtils) { }
+    constructor(private readonly prisma: PrismaService, private readonly dateUtils: DateUtils, private readonly configService: ConfigService) { }
 
     async createWeeklySession(userId: string, tution_class_id: string, createWeeklySessionDto: CreateWeeklySessionDto) {
         console.log(`CLass id is ${tution_class_id}`)
@@ -89,7 +92,7 @@ export class WeeklySessionsService {
         const firstDayOfMonth = new Date();
         firstDayOfMonth.setDate(1)
         const lastDayOfMonth = new Date(firstDayOfMonth.getFullYear(), firstDayOfMonth.getMonth() + 1, 0);
-        return this.prisma.weeklySession.findMany({
+        const weeklySessions = await this.prisma.weeklySession.findMany({
             where: {
                 tution_class_id: tution_class_id,
                 date: {
@@ -118,6 +121,38 @@ export class WeeklySessionsService {
                 video_thumbnail_url: true
             }
         });
+
+        const cloudflareAccountId = this.configService.get<string>(
+            'CLOUDFLARE_ACCOUNT_ID',
+        );
+        const cloudflareSecretKey = this.configService.get<string>(
+            'CLOUDFLARE_SECRET_KEY',
+        );
+
+        for (const ws of weeklySessions) {
+            const videoResource = await this.prisma.resource.findFirst({
+                where: {
+                    type: ResourceType.video,
+                    url: ws.video_url
+                }
+            })
+
+            if (videoResource) {
+
+                const signedTokenResult = await axios.post(`https://api.cloudflare.com/client/v4/accounts/${cloudflareAccountId}/stream/${videoResource.video_id}/token`, {}, {
+                    headers: {
+                        'Authorization': `Bearer ${cloudflareSecretKey}`,
+                    }
+                })
+                console.log(signedTokenResult.data)
+                const signedToken = signedTokenResult.data.result.token as string;
+                ws.video_url = ws.video_url.replace(videoResource.video_id || '', signedToken)
+
+            }
+
+        }
+
+        return weeklySessions
     }
 
     async getWeeklySessionsForCurrentMonthForStudent(userId: string, tution_class_id: string) {
@@ -141,7 +176,7 @@ export class WeeklySessionsService {
         const firstDayOfMonth = new Date();
         firstDayOfMonth.setDate(1)
         const lastDayOfMonth = new Date(firstDayOfMonth.getFullYear(), firstDayOfMonth.getMonth() + 1, 0);
-        return this.prisma.weeklySession.findMany({
+        const weeklySessions = await  this.prisma.weeklySession.findMany({
             where: {
                 tution_class_id: tution_class_id,
                 date: {
@@ -175,6 +210,38 @@ export class WeeklySessionsService {
                 }
             }
         });
+
+        const cloudflareAccountId = this.configService.get<string>(
+            'CLOUDFLARE_ACCOUNT_ID',
+        );
+        const cloudflareSecretKey = this.configService.get<string>(
+            'CLOUDFLARE_SECRET_KEY',
+        );
+
+        for (const ws of weeklySessions) {
+            const videoResource = await this.prisma.resource.findFirst({
+                where: {
+                    type: ResourceType.video,
+                    url: ws.video_url
+                }
+            })
+
+            if (videoResource) {
+
+                const signedTokenResult = await axios.post(`https://api.cloudflare.com/client/v4/accounts/${cloudflareAccountId}/stream/${videoResource.video_id}/token`, {}, {
+                    headers: {
+                        'Authorization': `Bearer ${cloudflareSecretKey}`,
+                    }
+                })
+                console.log(signedTokenResult.data)
+                const signedToken = signedTokenResult.data.result.token as string;
+                ws.video_url = ws.video_url.replace(videoResource.video_id || '', signedToken)
+
+            }
+
+        }
+
+        return weeklySessions
     }
 
     getWeeklyVideoDetailsByResourceId(userId: string, resourceId: number) {
