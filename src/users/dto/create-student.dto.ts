@@ -7,7 +7,12 @@ import {
   IsBoolean,
   IsDefined,
 } from 'class-validator';
-import { IsEmailUnique, IsNicUnique } from '../validators';
+
+import { 
+  IsEmailUnique, 
+  IsNicUnique 
+} from '../validators';
+
 import {
   HasMimeType,
   IsFile,

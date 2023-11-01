@@ -39,7 +39,9 @@ export class TutionClassesController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Post('')
-  createTutionClass(@Body() createTutionClassDto: CreateTutionClassDto) {
+  createTutionClass(
+    @Body() createTutionClassDto: CreateTutionClassDto)
+  {
     return this.tutionClassesService.createTutionClass(createTutionClassDto);
   }
 
@@ -47,10 +49,14 @@ export class TutionClassesController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Post('enroll')
-  enrollStudentToClass(@Body() enrollToClassDto: EnrollToClassDto) {
+  enrollStudentToClass(
+    @Body() enrollToClassDto: EnrollToClassDto
+    ) {
     return this.tutionClassesService.enrollStudent(enrollToClassDto);
   }
 
+
+  //enroll student to class by student
   @Roles('student')
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
@@ -75,7 +81,9 @@ export class TutionClassesController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Get('enrolled')
-  getEnrolledClassesOfStudentByStudent(@Req() req: Request) {
+  getEnrolledClassesOfStudentByStudent(
+    @Req() req: Request
+    ) {
     const user = req.user as AuthenticatedUser;
     const userId = user.sub;
     return this.tutionClassesService.enrolledClassesOfStudent(userId);
@@ -101,7 +109,9 @@ export class TutionClassesController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Get('/my-classes')
-  getMyTutionClasses(@Req() req: Request) {
+  getMyTutionClasses(
+    @Req() req: Request
+    ) {
     const user = req.user as AuthenticatedUser;
     const userId = user.sub;
     return this.tutionClassesService.getMyTutionClasses(userId);
