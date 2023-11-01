@@ -78,7 +78,7 @@ export class AnnouncementsController {
 
   //get announncement by class id
   @Get('class-announcements/:id')
-  @Roles('tutor')
+  @Roles('tutor', 'student')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HttpCode(HttpStatus.OK)
   getAnnouncementsByClassId(
