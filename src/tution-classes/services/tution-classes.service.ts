@@ -8,20 +8,21 @@ import { CreateTutionClassDto } from '../dto/create-tution-class.dto';
 import { EnrollToClassDto } from '../dto/enroll-to-class.dto';
 import { PrismaService } from '../../prisma.service';
 import { Student } from '@prisma/client';
+import { FileUploader } from 'src/utils/FileUploader';
 
 @Injectable()
 export class TutionClassesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly fileUploader: FileUploader) { }
 
   getTutionClasses() {
     return this.prisma.tutionClass.findMany({
       include: {
         subject: true,
-        tutor: { 
-          include: { 
-            user: true 
+        tutor: {
+          include: {
+            user: true
           }
-         },
+        },
       },
     });
   }
@@ -39,8 +40,8 @@ export class TutionClassesService {
   async enrolledClassesOfStudent(userId: string) {
     const enrollments = await this.prisma.enrollment.findMany({
       where: {
-        student: { 
-          user_id: userId 
+        student: {
+          user_id: userId
         },
       },
       include: {
@@ -48,12 +49,12 @@ export class TutionClassesService {
           include: {
             tutor: {
               include: {
-                user: { 
-                  select: { 
-                    f_name: true, 
-                    l_name: true, 
-                    avatar: true 
-                  } 
+                user: {
+                  select: {
+                    f_name: true,
+                    l_name: true,
+                    avatar: true
+                  }
                 },
               },
             },
@@ -106,16 +107,25 @@ export class TutionClassesService {
     monthly_fee,
     subject_id,
     tutor_id,
+    banner, day, time, end_date, start_date
   }: CreateTutionClassDto) {
     try {
+
+      const banner_url = await this.fileUploader.uploadFile(banner, {folder: 'tution-class-banners'});
       const tutionClass = await this.prisma.tutionClass.create({
         data: {
           class_name,
           class_description,
           subject_id,
           tutor_id,
-          admission_fee,
-          monthly_fee,
+          admission_fee: +admission_fee,
+          monthly_fee: +monthly_fee,
+          schedule: {
+            day,
+            time
+          },
+          start_date: new Date(start_date),
+          end_date: new Date(end_date),
         },
       });
       return tutionClass;
@@ -127,9 +137,9 @@ export class TutionClassesService {
 
   async enrollStudent({ class_id, student_id }: EnrollToClassDto) {
     const existingEnrollment = await this.prisma.enrollment.findFirst({
-      where: { 
-        class_id, 
-        student_id 
+      where: {
+        class_id,
+        student_id
       },
     });
     if (existingEnrollment) {
@@ -138,9 +148,9 @@ export class TutionClassesService {
       );
     }
     const enrollment = await this.prisma.enrollment.create({
-      data: { 
-        class_id, 
-        student_id 
+      data: {
+        class_id,
+        student_id
       },
     });
     return enrollment;
@@ -156,11 +166,11 @@ export class TutionClassesService {
         student: {
           include: {
             user: {
-             select: {
-              f_name: true,
-              l_name: true, 
-              avatar: true 
-              } 
+              select: {
+                f_name: true,
+                l_name: true,
+                avatar: true
+              }
             },
           },
         },

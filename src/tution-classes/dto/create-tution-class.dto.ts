@@ -1,10 +1,12 @@
-import { IsString, IsNotEmpty, IsArray, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsArray, IsNumber, IsIn, IsDateString, IsNumberString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsSubjectIdValid,
   IsClassNameUnique,
   IsTutorIdValid,
 } from '../validators';
+import { DayName } from 'src/types/util-types';
+import { HasMimeType, IsFile, MaxFileSize, MemoryStoredFile } from 'nestjs-form-data';
 
 export class CreateTutionClassDto {
   @ApiProperty()
@@ -19,12 +21,12 @@ export class CreateTutionClassDto {
   class_description: string;
 
   @ApiProperty()
-  @IsNumber()
-  admission_fee: number;
+  @IsNumberString()
+  admission_fee: string;
 
   @ApiProperty()
-  @IsNumber()
-  monthly_fee: number;
+  @IsNumberString()
+  monthly_fee: string;
 
   @ApiProperty()
   @IsSubjectIdValid()
@@ -37,4 +39,34 @@ export class CreateTutionClassDto {
   @IsNotEmpty()
   @IsString()
   tutor_id: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @IsIn(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'])
+  day: DayName;
+
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  time: string;
+
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsDateString()
+  @IsString()
+  start_date: string
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsDateString()
+  @IsString()
+  end_date: string
+
+  @IsFile()
+  @MaxFileSize(1e7)
+  @HasMimeType(['image/jpeg', 'image/png'])
+  banner: MemoryStoredFile;
 }
