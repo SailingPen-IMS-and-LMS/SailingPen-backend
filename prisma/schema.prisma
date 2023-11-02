@@ -102,6 +102,9 @@ model TutionClass {
   schedule          Json?
   admission_fee     Decimal?
   monthly_fee       Decimal?
+  start_date        DateTime?
+  end_date          DateTime?
+  banner_url        String?
   subject           Subject         @relation(fields: [subject_id], references: [subject_id])
   subject_id        String
   tutor             Tutor           @relation(fields: [tutor_id], references: [tutor_id])

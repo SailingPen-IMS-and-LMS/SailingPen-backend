@@ -19,6 +19,7 @@ import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthenticatedUser } from 'src/auth/types/jwt.types';
 import { Student } from '@prisma/client';
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller('tution-classes')
 export class TutionClassesController {
@@ -39,6 +40,7 @@ export class TutionClassesController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Post('')
+  @FormDataRequest()
   createTutionClass(
     @Body() createTutionClassDto: CreateTutionClassDto)
   {
